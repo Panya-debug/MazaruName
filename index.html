@@ -338,6 +338,23 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 .mr:hover .medit{opacity:1;}
 .medit:hover{background:#e3f2fd;}
 
+/* ─── DRAG & DROP ─── */
+.mr{cursor:grab;}
+.mr.dragging{opacity:.35;background:rgba(13,31,53,.08);cursor:grabbing;}
+.mr .drag-handle{
+  opacity:0;color:var(--con);font-size:12px;cursor:grab;
+  padding:0 3px;transition:opacity .13s;user-select:none;
+}
+.mr:hover .drag-handle{opacity:1;}
+.members.drag-over{
+  background:rgba(212,170,69,.07);
+  outline:2px dashed var(--gold2);
+  outline-offset:-3px;
+  border-radius:6px;
+}
+.mr.drop-above{border-top:2px solid var(--gold2);}
+.mr.drop-below{border-bottom:2px solid var(--gold2);}
+
 .add-row{display:none;padding:6px 10px 8px;border-top:1px solid var(--border);background:var(--bg);}
 .add-form{display:flex;gap:5px;}
 .add-form input{
@@ -1275,7 +1292,8 @@ function makeDeptCard(d, gid) {
   var rows = d.members.map(function(m, i) {
     var mhlColor = m.hlc ? hlColorMapLocal[m.hlc] : null;
     var mhlStyle = mhlColor ? 'background:' + mhlColor + '22;border-left:3px solid ' + mhlColor + ';' : '';
-    return '<div class="mr' + (m.hlc ? ' mhl' : '') + '" style="' + mhlStyle + '">'
+    return '<div class="mr' + (m.hlc ? ' mhl' : '') + '" style="' + mhlStyle + '" draggable="true" data-mid="' + escH(m.id) + '" data-did="' + escH(d.id) + '">'
+      + '<span class="drag-handle">⠿</span>'
       + '<span class="mn">' + (i+1) + '</span>'
       + '<span class="mname">' + escH(m.n) + '</span>'
       + (m.k ? '<span class="mnick">' + escH(m.k) + '</span>' : '')
@@ -1306,7 +1324,9 @@ function makeDeptCard(d, gid) {
 
   var membersDiv = document.createElement('div');
   membersDiv.className = 'members';
+  membersDiv.dataset.did = did;
   membersDiv.innerHTML = rows;
+  initDragDrop(membersDiv);
   card.appendChild(membersDiv);
 
   var addRow = document.createElement('div');
@@ -1627,6 +1647,150 @@ function saveEditMember() {
   }
   emDeptId = null;
   emMemberId = null;
+}
+
+// ═══ DRAG & DROP ═══
+var dragState = null; // { mid, fromDid, fromIndex }
+
+function initDragDrop(membersDiv) {
+  membersDiv.addEventListener('dragstart', function(e) {
+    var row = e.target.closest('.mr[draggable]');
+    if (!row) return;
+    dragState = {
+      mid: row.dataset.mid,
+      fromDid: row.dataset.did,
+      fromIndex: Array.from(membersDiv.querySelectorAll('.mr')).indexOf(row)
+    };
+    row.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', row.dataset.mid);
+  });
+
+  membersDiv.addEventListener('dragend', function(e) {
+    var row = e.target.closest('.mr');
+    if (row) row.classList.remove('dragging');
+    document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
+      r.classList.remove('drop-above','drop-below');
+    });
+    document.querySelectorAll('.members.drag-over').forEach(function(m){
+      m.classList.remove('drag-over');
+    });
+  });
+
+  membersDiv.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    membersDiv.classList.add('drag-over');
+    // find nearest row for indicator
+    var rows = Array.from(membersDiv.querySelectorAll('.mr:not(.dragging)'));
+    document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
+      r.classList.remove('drop-above','drop-below');
+    });
+    var nearest = null, nearestDist = Infinity;
+    rows.forEach(function(r) {
+      var rect = r.getBoundingClientRect();
+      var mid = rect.top + rect.height / 2;
+      var dist = Math.abs(e.clientY - mid);
+      if (dist < nearestDist) { nearestDist = dist; nearest = r; }
+    });
+    if (nearest) {
+      var rect = nearest.getBoundingClientRect();
+      if (e.clientY < rect.top + rect.height / 2) {
+        nearest.classList.add('drop-above');
+      } else {
+        nearest.classList.add('drop-below');
+      }
+    }
+  });
+
+  membersDiv.addEventListener('dragleave', function(e) {
+    if (!membersDiv.contains(e.relatedTarget)) {
+      membersDiv.classList.remove('drag-over');
+      document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
+        r.classList.remove('drop-above','drop-below');
+      });
+    }
+  });
+
+  membersDiv.addEventListener('drop', function(e) {
+    e.preventDefault();
+    membersDiv.classList.remove('drag-over');
+    if (!dragState) return;
+
+    var toDid = membersDiv.dataset.did;
+    var rows = Array.from(membersDiv.querySelectorAll('.mr:not(.dragging)'));
+    var aboveRow = membersDiv.querySelector('.mr.drop-above');
+    var belowRow = membersDiv.querySelector('.mr.drop-below');
+    document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
+      r.classList.remove('drop-above','drop-below');
+    });
+
+    // determine insert index in target dept
+    var toIndex;
+    if (aboveRow) {
+      toIndex = rows.indexOf(aboveRow);
+    } else if (belowRow) {
+      toIndex = rows.indexOf(belowRow) + 1;
+    } else {
+      toIndex = rows.length; // drop at end
+    }
+
+    var fromDept = findDept(dragState.fromDid);
+    var toDept   = findDept(toDid);
+    if (!fromDept || !toDept) return;
+
+    var member = fromDept.members.find(function(m){ return m.id === dragState.mid; });
+    if (!member) return;
+
+    // same dept — just reorder
+    var oldFromMembers = fromDept.members.slice();
+    var oldToMembers   = toDept.members.slice();
+
+    fromDept.members = fromDept.members.filter(function(m){ return m.id !== dragState.mid; });
+
+    if (toDid === dragState.fromDid) {
+      // adjust index after removal
+      if (toIndex > dragState.fromIndex) toIndex--;
+      toDept.members.splice(toIndex, 0, member);
+    } else {
+      member.dept_id = toDid;
+      toDept.members.splice(toIndex, 0, member);
+    }
+
+    render();
+    showToast('↕️ ย้าย ' + member.n + ' แล้ว', 'ok');
+
+    // sync to DB
+    if (dbReady) {
+      var mutations = [];
+      toDept.members.forEach(function(m, i) {
+        mutations.push(
+          gql('mutation MoveMember($id: String!, $deptId: String!, $sort: Int!) { update_members_by_pk(pk_columns:{id:$id}, _set:{dept_id:$deptId, sort_order:$sort}) { id } }',
+            { id: m.id, deptId: toDid, sort: i })
+        );
+      });
+      // if cross-dept, also reindex source dept
+      if (toDid !== dragState.fromDid) {
+        fromDept.members.forEach(function(m, i) {
+          mutations.push(
+            gql('mutation ReorderMember($id: String!, $sort: Int!) { update_members_by_pk(pk_columns:{id:$id}, _set:{sort_order:$sort}) { id } }',
+              { id: m.id, sort: i })
+          );
+        });
+      }
+      Promise.all(mutations)
+        .then(function(){ showToast('✅ บันทึกตำแหน่งแล้ว', 'ok'); })
+        .catch(function(e){
+          // rollback
+          fromDept.members = oldFromMembers;
+          toDept.members   = oldToMembers;
+          render();
+          showToast('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
+        });
+    }
+
+    dragState = null;
+  });
 }
 
 function findDept(did) {
