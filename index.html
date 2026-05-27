@@ -275,12 +275,13 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   font-size:10px;background:rgba(255,255,255,.15);
   padding:2px 7px;border-radius:10px;white-space:nowrap;letter-spacing:.3px;
 }
-.dc-acts{display:flex;gap:3px;opacity:0;transition:opacity .18s;}
+.dc-acts{display:flex;gap:3px;opacity:0;transition:opacity .18s;flex-shrink:0;}
 .dc:hover .dc-acts{opacity:1;}
 .dc-acts button{
   background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);
-  border-radius:5px;color:#fff;cursor:pointer;font-size:10px;
-  padding:2px 7px;transition:background .13s;font-family:'Sarabun',sans-serif;
+  border-radius:5px;color:#fff;cursor:pointer;font-size:12px;
+  width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  transition:background .13s;flex-shrink:0;
 }
 .dc-acts button:hover{background:rgba(255,255,255,.28);}
 
@@ -1333,10 +1334,10 @@ function makeDeptCard(d, gid) {
     + '<span class="dc-name">' + escH(d.name) + '</span>'
     + '<span class="dc-cnt">' + d.members.length + '</span>'
     + '<div class="dc-acts" id="acts-' + did + '">'
-    +   '<button>＋ เพิ่มชื่อ</button>'
-    +   '<button class="dc-edit-btn">✏️ แก้ไข</button>'
-    +   '<button data-hl-btn="1" style="background:rgba(212,170,69,.3);color:#fff">🎨 ไฮไลท์</button>'
-    +   '<button style="background:rgba(220,50,50,.5)">🗑</button>'
+    +   '<button title="เพิ่มชื่อ">＋</button>'
+    +   '<button class="dc-edit-btn" title="แก้ไขแผนก">✏️</button>'
+    +   '<button data-hl-btn="1" style="background:rgba(212,170,69,.3);color:#fff" title="ไฮไลท์">🎨</button>'
+    +   '<button style="background:rgba(220,50,50,.5)" title="ลบแผนก">🗑</button>'
     + '</div>';
 
   card.appendChild(head);
