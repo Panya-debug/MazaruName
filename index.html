@@ -29,7 +29,12 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   padding:0 20px;height:50px;
   display:flex;align-items:center;gap:6px;
   border-bottom:1px solid rgba(212,170,69,.2);
+  overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:thin;
 }
+.toolbar::-webkit-scrollbar{height:7px;}
+.toolbar::-webkit-scrollbar-thumb{background:rgba(212,170,69,.35);border-radius:999px;}
+.toolbar::-webkit-scrollbar-track{background:transparent;}
 .tbar-brand{
   display:flex;align-items:center;gap:8px;margin-right:8px;
 }
@@ -44,17 +49,13 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:5px;
 }
 .btn-gold{background:var(--gold2);color:var(--navy);}.btn-gold:hover{background:var(--gold3);transform:translateY(-1px);box-shadow:0 4px 12px rgba(212,170,69,.3);}
+.btn-gold-light{background:rgba(212,170,69,0.15);color:var(--gold3);border:1px solid rgba(212,170,69,0.35);}.btn-gold-light:hover{background:rgba(212,170,69,0.25);transform:translateY(-1px);}
 .btn-red{background:#8b2020;color:#fff;}.btn-red:hover{background:#a02828;}
 .btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.14);}.btn-ghost:hover{background:rgba(255,255,255,.15);}
-.btn-green{background:#1e6b24;color:#fff;}.btn-green:hover{background:#257a2c;}
 .btn-print{background:transparent;color:var(--gold2);border:1px solid rgba(212,170,69,.4);font-weight:600;}.btn-print:hover{background:rgba(212,170,69,.1);}
 .btn-teal{background:#0e7490;color:#fff;}.btn-teal:hover{background:#0891b2;}
 .btn-indigo{background:#4338ca;color:#fff;}.btn-indigo:hover{background:#4f46e5;}
 .tsep{width:1px;height:20px;background:rgba(255,255,255,.12);margin:0 4px;}
-.clabel{color:rgba(255,255,255,.4);font-size:10.5px;white-space:nowrap;letter-spacing:.5px;text-transform:uppercase;}
-.cpill{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0;}
-.cpill:hover{transform:scale(1.3);}
-.cpill.on{border-color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.5);}
 
 /* ─── PAGE ─── */
 .page{padding-top:50px;}
@@ -99,7 +100,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 
 /* ════════ TREE LAYOUT ════════ */
 .org-wrap{
-  padding:0 24px 40px;
+  padding:0 12px 40px;
   display:flex;flex-direction:column;align-items:center;
 }
 
@@ -115,11 +116,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   background:linear-gradient(135deg,rgba(212,170,69,.06) 0%,transparent 60%);
 }
 .node-ceo .role{font-size:10px;letter-spacing:2.5px;color:var(--gold3);text-transform:uppercase;margin-bottom:6px;font-weight:700;}
-.node-ceo .name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:18px;font-weight:700;position:relative;}
-
-.conn-v{width:1.5px;background:linear-gradient(180deg,var(--gold2),var(--con));flex-shrink:0;}
-.conn-v.short{height:24px;}
-.conn-v.med{height:32px;}
+.node-ceo .name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:18px;font-weight:700;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── CEO ROW (CEO always centered, secretaries on sides) ── */
 .ceo-row{
@@ -156,15 +153,23 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 }
 .sec-node:hover{box-shadow:var(--shadow-md);}
 .sec-role{font-size:9.5px;letter-spacing:1.5px;color:#7c4dff;font-weight:800;text-transform:uppercase;}
-.sec-name{font-weight:700;color:var(--navy2);margin-top:3px;font-size:13px;}
+.sec-name{font-weight:700;color:var(--navy2);margin-top:3px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .sec-nick{font-size:11px;color:var(--sub);margin-top:1px;}
-.sec-del{
-  opacity:0;position:absolute;top:5px;right:6px;
-  background:none;border:none;color:#ef5350;cursor:pointer;
-  font-size:11px;padding:2px 4px;border-radius:4px;transition:all .13s;
+
+/* Secretary action buttons menu */
+.sec-acts-container {
+  opacity: 0; position: absolute; top: 5px; right: 6px;
+  display: flex; gap: 3px; transition: all .13s; z-index: 10;
 }
-.sec-node:hover .sec-del{opacity:1;}
-.sec-del:hover{background:#ffebee;}
+.sec-node:hover .sec-acts-container { opacity: 1; }
+.sec-acts-container button {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; padding: 2px 4px; border-radius: 4px; transition: all .13s;
+}
+.sec-acts-container .sec-edit { color: #1e88e5; }
+.sec-acts-container .sec-edit:hover { background: #e3f2fd; }
+.sec-acts-container .sec-del { color: #ef5350; }
+.sec-acts-container .sec-del:hover { background: #ffebee; }
 
 /* CEO add secretary buttons */
 .ceo-wrap{
@@ -196,26 +201,42 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   align-self:center;
   margin:0 auto;
   display:block;
+  position:relative;
+  z-index:1;
 }
 
 
 
 /* GROUPS GRID */
-.level-groups{width:100%;max-width:1680px;position:relative;}
+.level-groups{
+  width:100%;max-width:100%;position:relative;
+  overflow-x:auto;overflow-y:visible;
+  padding:0 8px 8px;
+  scrollbar-width:thin;
+}
+.level-groups::-webkit-scrollbar{height:9px;}
+.level-groups::-webkit-scrollbar-thumb{background:#d8d1c8;border-radius:999px;}
+.level-groups::-webkit-scrollbar-thumb:hover{background:#c9c1b6;}
+.level-groups::-webkit-scrollbar-track{background:rgba(0,0,0,.04);border-radius:999px;}
 .level-groups::before{
-  content:'';position:absolute;top:0;left:0;right:0;
-  height:1.5px;background:linear-gradient(90deg,transparent 2%,var(--con) 10%,var(--con) 90%,transparent 98%);
+  content:'';position:absolute;top:0;left:0;
+  height:1.5px;background:var(--con);
+  width:100%;
 }
 .groups-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:0 16px;width:100%;padding-top:0;
+  display:flex;align-items:flex-start;flex-wrap:nowrap;
+  gap:0 6px;width:max-content;min-width:100%;padding-top:0;
 }
 
 /* GROUP COLUMN */
 .group-col{
   display:flex;flex-direction:column;align-items:center;
   position:relative;padding:0 6px 20px;
+  cursor: grab;
+  transition: transform 0.2s, opacity 0.2s;
+  flex:0 0 300px;min-width:300px;max-width:300px;
 }
+
 .group-col::before{
   content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
   width:1.5px;height:36px;background:var(--con);
@@ -224,17 +245,50 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 /* GROUP HEADER */
 .grp-head{
   border-radius:var(--radius);padding:12px 16px 10px;text-align:center;
-  border:1px solid;min-width:130px;width:100%;max-width:230px;
+  border:1px solid;min-width:130px;width:100%;max-width:320px;
   position:relative;margin-top:36px;margin-bottom:14px;
   box-shadow:var(--shadow-sm);
+  user-select: none;
 }
 .grp-head::after{
   content:'';position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
   width:1.5px;height:14px;background:var(--con);
 }
 .grp-icon{font-size:20px;margin-bottom:4px;}
-.grp-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:13.5px;font-weight:700;}
+.grp-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .grp-cnt{font-size:11px;opacity:.7;margin-top:2px;}
+
+/* Group Actions hover menu */
+.grp-acts {
+  position: absolute;
+  top: -14px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .18s;
+  z-index: 10;
+}
+.grp-head:hover .grp-acts {
+  opacity: 1;
+}
+.grp-acts button {
+  background: var(--navy2);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 10px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .13s;
+}
+.grp-acts button:hover {
+  background: var(--navy);
+}
 
 .g-red   {background:#fef2f2;border-color:#fca5a5;color:#7f1d1d;}
 .g-blue  {background:#eff6ff;border-color:#93c5fd;color:#1e3a5f;}
@@ -246,31 +300,33 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 .g-indigo{background:#eef2ff;border-color:#a5b4fc;color:#312e81;}
 
 /* DEPT CARDS */
-.dept-cards{display:flex;flex-direction:column;gap:8px;width:100%;}
+.dept-cards{
+  display:flex;flex-direction:column;gap:8px;width:100%;
+  min-height: 80px;
+  padding: 4px;
+  transition: background-color 0.2s;
+}
+
 
 .dc{
   background:var(--white);border:1px solid var(--border);
   border-radius:var(--radius);overflow:hidden;text-align:left;
   transition:box-shadow .2s,border-color .2s;
 }
+
 .dc:hover{box-shadow:var(--shadow-md);border-color:var(--border2);}
 
-.dc.hl-yellow{background:#fffde7;border-color:#f9c928;}
-.dc.hl-green {background:#e8f5e9;border-color:#4caf50;}
-.dc.hl-blue  {background:#e3f2fd;border-color:#42a5f5;}
-.dc.hl-pink  {background:#fce4ec;border-color:#ec407a;}
-.dc.hl-orange{background:#fff3e0;border-color:#ffa726;}
-.dc.hl-purple{background:#f3e5f5;border-color:#ab47bc;}
-.dc.hl-teal  {background:#e0f2f1;border-color:#26a69a;}
-.dc.hl-red   {background:#ffebee;border-color:#ef5350;}
+
 
 .dc-head{
   background:var(--navy2);color:#fff;
   padding:8px 12px;display:flex;align-items:center;gap:7px;
   background:linear-gradient(90deg,var(--navy) 0%,var(--navy2) 100%);
+  user-select: none;
+  cursor: grab;
 }
 .dc-icon{font-size:13px;flex-shrink:0;}
-.dc-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:700;flex:1;line-height:1.3;}
+.dc-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;flex:1;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-width:0;cursor:default;}
 .dc-cnt{
   font-size:10px;background:rgba(255,255,255,.15);
   padding:2px 7px;border-radius:10px;white-space:nowrap;letter-spacing:.3px;
@@ -286,43 +342,69 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 .dc-acts button:hover{background:rgba(255,255,255,.28);}
 
 
-/* ── highlight picker popup ── */
-.hl-popup-wrap{position:relative;display:inline-block;}
-.hl-popup{
-  position:absolute;z-index:500;top:calc(100% + 6px);left:50%;transform:translateX(-50%);
-  background:#fff;border:1px solid var(--border);border-radius:10px;
-  box-shadow:0 8px 28px rgba(0,0,0,.18);
-  padding:10px 12px;display:none;flex-direction:column;gap:6px;min-width:190px;
-}
-.hl-popup.open{display:flex;}
-.hl-popup-title{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
-.hl-dots{display:flex;gap:5px;align-items:center;margin-bottom:2px;}
-.hl-members-list{display:flex;flex-direction:column;gap:1px;max-height:200px;overflow-y:auto;}
-.hl-member-row{
-  display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:6px;cursor:pointer;
-  font-size:12.5px;font-weight:600;color:var(--text);transition:background .12s;
-}
-.hl-member-row:hover{background:var(--bg2);}
-.hl-member-row input[type=checkbox]{cursor:pointer;accent-color:var(--navy2);width:13px;height:13px;}
-.hl-member-nick{font-size:11px;color:var(--sub);margin-left:1px;}
 
-.hd{width:16px;height:16px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .13s;}
-.hd:hover{transform:scale(1.25);}
-.hd.on{border-color:#333;box-shadow:0 0 0 1px #333;}
 
-/* member row highlight */
-.mr.mhl{border-radius:5px;}
-.mr.mhl .mname{font-weight:800;}
+.group-col.dragging{
+  opacity: 0.35;
+  cursor: grabbing;
+}
+.group-col.drag-over-left {
+  border-left: 2px dashed var(--gold2);
+}
+.group-col.drag-over-right {
+  border-right: 2px dashed var(--gold2);
+}
+.dept-cards.drag-over-dept {
+  background-color: rgba(212, 170, 69, 0.05);
+  outline: 2px dashed var(--gold2);
+  border-radius: var(--radius);
+}
+.dc.dragging-dept {
+  opacity: 0.35;
+  cursor: grabbing;
+}
+.dc.drop-above-dept {
+  border-top: 3px solid var(--gold2);
+}
+.dc.drop-below-dept {
+  border-bottom: 3px solid var(--gold2);
+}
+/* ─── DRAG & DROP (Pointer Events) ─── */
+.mr{cursor:grab;}
+.mr.dragging{opacity:.35;background:rgba(13,31,53,.08);cursor:grabbing;}
+.mr .drag-handle{
+  display:none;
+}
+.members.drag-over{
+  background:rgba(212,170,69,.07);
+  outline:2px dashed var(--gold2);
+  outline-offset:-3px;
+  border-radius:6px;
+}
+.mr.drop-above{border-top:2px solid var(--gold2);}
+.mr.drop-below{border-bottom:2px solid var(--gold2);}
+/* Ghost element ที่ลอยตามเมาส์ */
+.drag-ghost{
+  position:fixed;z-index:99999;pointer-events:none;
+  background:var(--white);border:1.5px solid var(--gold2);border-radius:8px;
+  padding:6px 12px;font-size:13px;font-weight:600;color:var(--navy);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);opacity:.92;
+  white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;
+  transform:translate(-50%,-50%) rotate(2deg);
+}
+
+
 
 .members{padding:8px 10px;}
-.mr{display:flex;align-items:center;gap:6px;padding:7px 5px;border-radius:5px;transition:background .13s;}
+.mr{display:flex;align-items:center;gap:6px;padding:7px 5px;border-radius:5px;transition:background .13s;min-width:0;overflow:visible;}
 .mr:hover{background:rgba(0,0,0,.04);}
+.mr.mhl{border-radius:5px;padding-left:8px;}
 .mn{font-size:9px;color:var(--border2);min-width:14px;text-align:right;font-weight:700;}
-.mname{flex:1;font-size:13px;font-weight:600;line-height:1.4;color:var(--text);}
+.mname{flex:1;font-size:12px;font-weight:600;line-height:1.4;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;cursor:default;}
 .mnick{
   font-size:11px;color:var(--sub);background:var(--bg);
   border:1px solid var(--border);border-radius:8px;
-  padding:1px 7px;white-space:nowrap;
+  padding:1px 5px;white-space:nowrap;flex-shrink:0;
 }
 .mdel{
   opacity:0;background:none;border:none;border-radius:4px;
@@ -338,23 +420,47 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 }
 .mr:hover .medit{opacity:1;}
 .medit:hover{background:#e3f2fd;}
+.mcolor{
+  opacity:0;background:none;border:none;border-radius:4px;
+  cursor:pointer;font-size:13px;padding:2px 4px;
+  transition:background .13s;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+}
+.mr:hover .mcolor{opacity:1;}
+.mcolor:hover{background:rgba(0,0,0,.06);}
+/* ── color picker panel ── */
+#colorPickerPanel{
+  display:none;position:fixed;z-index:999999;
+  background:#fff;border:1px solid #ddd;border-radius:14px;
+  box-shadow:0 10px 32px rgba(0,0,0,.22),0 2px 8px rgba(0,0,0,.08);
+  padding:10px 12px;min-width:196px;
+  animation:cpIn .15s ease;
+}
+#colorPickerPanel.show{display:block;}
+@keyframes cpIn{from{opacity:0;transform:scale(.93) translateY(-4px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#cpTitle{
+  font-size:9px;font-weight:700;color:#999;letter-spacing:1.2px;
+  text-transform:uppercase;padding:0 2px 7px;border-bottom:1px solid #eee;margin-bottom:8px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:172px;
+}
+#cpDots{display:flex;gap:7px;align-items:center;padding:2px 2px 8px;flex-wrap:wrap;}
+.cp-dot{
+  width:22px;height:22px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+  transition:transform .12s,box-shadow .12s;
+}
+.cp-dot:hover{transform:scale(1.25);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.cp-dot.active{border-color:#222;box-shadow:0 0 0 2px rgba(0,0,0,.18);}
+#cpClear{
+  display:none;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;
+  font-size:12px;font-weight:600;color:#666;cursor:pointer;
+  border-top:1px solid #eee;margin-top:2px;padding-top:8px;
+  transition:background .1s;
+}
+#cpClear:hover{background:#f5f5f5;}
+#cpClear.show{display:flex;}
 
-/* ─── DRAG & DROP ─── */
-.mr{cursor:grab;}
-.mr.dragging{opacity:.35;background:rgba(13,31,53,.08);cursor:grabbing;}
-.mr .drag-handle{
-  opacity:0;color:var(--con);font-size:12px;cursor:grab;
-  padding:0 3px;transition:opacity .13s;user-select:none;
-}
-.mr:hover .drag-handle{opacity:1;}
-.members.drag-over{
-  background:rgba(212,170,69,.07);
-  outline:2px dashed var(--gold2);
-  outline-offset:-3px;
-  border-radius:6px;
-}
-.mr.drop-above{border-top:2px solid var(--gold2);}
-.mr.drop-below{border-bottom:2px solid var(--gold2);}
+
 
 .add-row{display:none;padding:6px 10px 8px;border-top:1px solid var(--border);background:var(--bg);}
 .add-form{display:flex;gap:5px;}
@@ -692,22 +798,45 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 @media print{.overlay{display:none!important;}}
 
 @media print{
-  .toolbar,.dc-acts,.add-row,.hl-bar,.mdel,.overlay{display:none!important;}
+  .toolbar,.dc-acts,.grp-acts,.sec-acts-container,.add-row,.hl-bar,.mdel,.overlay{display:none!important;}
   .page{padding-top:0;}
   body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .banner,.dc-head,
-  .dc.hl-yellow,.dc.hl-green,.dc.hl-blue,.dc.hl-pink,
-  .dc.hl-orange,.dc.hl-purple,.dc.hl-teal,.dc.hl-red,
   .g-red,.g-blue,.g-green,.g-amber,.g-purple,.g-teal,.g-rose,.g-indigo
   {-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .groups-grid{gap:0 8px;}
-  .group-col{padding:0 2px 12px;}
+  .level-groups{overflow:visible;padding:0;}
+  .groups-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    width:100%;min-width:0;gap:0 8px;
+  }
+  .group-col{padding:0 2px 12px;min-width:0;max-width:none;flex:none;}
   .grp-head{max-width:180px;}
   .dc{break-inside:avoid;page-break-inside:avoid;}
   .dc-name{font-size:11px;}
   .mname{font-size:10.5px;}
   .org-wrap{padding:0 10px 20px;}
 }
+
+
+
+/* ── Collapse / Expand Groups ── */
+.group-col .dept-cards{
+  transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s;
+  overflow: hidden;
+  max-height: 2000px;
+  opacity: 1;
+}
+.group-col.collapsed .dept-cards{
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.grp-head{ cursor: pointer; user-select:none; }
+.grp-toggle{
+  font-size:11px;margin-left:4px;
+  display:inline-block;transition:transform .3s;
+}
+.group-col.collapsed .grp-toggle{ transform:rotate(-90deg); }
 </style>
 </head>
 <body>
@@ -734,7 +863,8 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
     <span class="tbar-title">ผังองค์กร</span>
   </div>
   <div class="tsep"></div>
-  <button class="btn btn-gold" onclick="openAddDept()">＋ เพิ่มแผนก</button>
+  <button class="btn btn-gold-light" onclick="openAddGroup()">📁 ＋ เพิ่มหัวข้อใหญ่</button>
+  <button class="btn btn-gold" onclick="openAddDept()">🏢 ＋ เพิ่มแผนกย่อย</button>
   <div class="tsep"></div>
   <button class="btn btn-teal" onclick="openAllMembers()">👥 รวมสมาชิก</button>
   <button class="btn btn-indigo" onclick="openStrengthModal()">📊 อัตรากำลัง</button>
@@ -800,6 +930,117 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 <div class="org-foot">ผังองค์กร มาซารุ มาร์เก็ตติ้ง จำกัด &nbsp;|&nbsp; จัดทำโดยแผนกบุคคล</div>
 </div>
 
+<!-- MODAL ADD GROUP (หัวข้อใหญ่) -->
+<div class="overlay" id="addGroupModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon">📁</div>
+      <h3>เพิ่มหัวข้อใหญ่ (กลุ่มงานหลัก)</h3>
+      <button class="modal-close" onclick="closeM('addGroupModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>ชื่อหัวข้อใหญ่</label>
+      <input id="ng-name" type="text" placeholder="เช่น บริหาร & สนับสนุน / คลังสินค้า" onkeydown="if(event.key==='Enter')addGroup()">
+
+      <label>ไอคอน</label>
+      <div class="icon-preview">
+        <input type="text" id="ng-icon" value="📁" maxlength="4" oninput="updateGroupIconPreview()" placeholder="emoji">
+        <div class="icon-display" id="groupIconPreviewBox">📁</div>
+      </div>
+      
+      <!-- Emoji Picks for Groups -->
+      <div class="emoji-picks" id="groupEmojiPicks">
+        <button onclick="pickGroupEmoji('📁')">📁</button>
+        <button onclick="pickGroupEmoji('🏛️')">🏛️</button>
+        <button onclick="pickGroupEmoji('🛒')">🛒</button>
+        <button onclick="pickGroupEmoji('📣')">📣</button>
+        <button onclick="pickGroupEmoji('💼')">💼</button>
+        <button onclick="pickGroupEmoji('🎬')">🎬</button>
+        <button onclick="pickGroupEmoji('📊')">📊</button>
+        <button onclick="pickGroupEmoji('💻')">💻</button>
+        <button onclick="pickGroupEmoji('📦')">📦</button>
+        <button onclick="pickGroupEmoji('🤝')">🤝</button>
+        <button onclick="pickGroupEmoji('🏪')">🏪</button>
+        <button onclick="pickGroupEmoji('🔍')">🔍</button>
+        <button onclick="pickGroupEmoji('🔧')">🔧</button>
+        <button onclick="pickGroupEmoji('🎨')">🎨</button>
+        <button onclick="pickGroupEmoji('⭐')">⭐</button>
+      </div>
+
+      <label>ธีมสีหัวข้อ</label>
+      <select id="ng-theme">
+        <option value="g-blue">🔵 น้ำเงิน (g-blue)</option>
+        <option value="g-amber">🟡 เหลือง/ส้ม (g-amber)</option>
+        <option value="g-rose">🔴 ชมพู/แดง (g-rose)</option>
+        <option value="g-purple">🟣 ม่วง (g-purple)</option>
+        <option value="g-green">🟢 เขียว (g-green)</option>
+        <option value="g-teal">🌐 ฟ้าเทล (g-teal)</option>
+        <option value="g-red">🔴 แดงเข้ม (g-red)</option>
+        <option value="g-indigo">🔵 คราม (g-indigo)</option>
+      </select>
+    </div>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" style="color:#333;border:1px solid #ccc;background:#fff;" onclick="closeM('addGroupModal')">ยกเลิก</button>
+      <button class="btn btn-gold" onclick="addGroup()">＋ เพิ่มหัวข้อใหญ่</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT GROUP (แก้ไขหัวข้อใหญ่) -->
+<div class="overlay" id="editGroupModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon">📁</div>
+      <h3>แก้ไขหัวข้อใหญ่</h3>
+      <button class="modal-close" onclick="closeM('editGroupModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>ชื่อหัวข้อใหญ่</label>
+      <input id="eg-name" type="text" placeholder="ชื่อกลุ่มงาน" onkeydown="if(event.key==='Enter')saveEditGroup()">
+      <label>ไอคอน</label>
+      <div class="icon-preview">
+        <input type="text" id="eg-icon" maxlength="4" oninput="updateEditGroupIconPreview()" placeholder="emoji">
+        <div class="icon-display" id="editGroupIconPreviewBox">📁</div>
+      </div>
+      
+      <!-- Emoji Picks for Editing Groups -->
+      <div class="emoji-picks" id="editGroupEmojiPicks">
+        <button onclick="pickEditGroupEmoji('📁')">📁</button>
+        <button onclick="pickEditGroupEmoji('🏛️')">🏛️</button>
+        <button onclick="pickEditGroupEmoji('🛒')">🛒</button>
+        <button onclick="pickEditGroupEmoji('📣')">📣</button>
+        <button onclick="pickEditGroupEmoji('💼')">💼</button>
+        <button onclick="pickEditGroupEmoji('🎬')">🎬</button>
+        <button onclick="pickEditGroupEmoji('📊')">📊</button>
+        <button onclick="pickEditGroupEmoji('💻')">💻</button>
+        <button onclick="pickEditGroupEmoji('📦')">📦</button>
+        <button onclick="pickEditGroupEmoji('🤝')">🤝</button>
+        <button onclick="pickEditGroupEmoji('🏪')">🏪</button>
+        <button onclick="pickEditGroupEmoji('🔍')">🔍</button>
+        <button onclick="pickEditGroupEmoji('🔧')">🔧</button>
+        <button onclick="pickEditGroupEmoji('🎨')">🎨</button>
+        <button onclick="pickEditGroupEmoji('⭐')">⭐</button>
+      </div>
+
+      <label>ธีมสีหัวข้อ</label>
+      <select id="eg-theme">
+        <option value="g-blue">🔵 น้ำเงิน (g-blue)</option>
+        <option value="g-amber">🟡 เหลือง/ส้ม (g-amber)</option>
+        <option value="g-rose">🔴 ชมพู/แดง (g-rose)</option>
+        <option value="g-purple">🟣 ม่วง (g-purple)</option>
+        <option value="g-green">🟢 เขียว (g-green)</option>
+        <option value="g-teal">🌐 ฟ้าเทล (g-teal)</option>
+        <option value="g-red">🔴 แดงเข้ม (g-red)</option>
+        <option value="g-indigo">🔵 คราม (g-indigo)</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeM('editGroupModal')">ยกเลิก</button>
+      <button class="btn btn-gold" onclick="saveEditGroup()">✓ บันทึก</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDIT DEPT -->
 <div class="overlay" id="editDeptModal">
   <div class="modal">
@@ -860,10 +1101,43 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
       <input id="sec-nick" type="text" placeholder="เช่น ใจ" onkeydown="if(event.key==='Enter')addSecretary()">
       <label>ตำแหน่ง</label>
       <input id="sec-role" type="text" placeholder="เช่น เลขาผู้บริหาร 3" onkeydown="if(event.key==='Enter')addSecretary()">
+      <label>ฝั่งที่อยู่</label>
+      <select id="sec-side-select">
+        <option value="left">👈 ฝั่งซ้าย</option>
+        <option value="right">👉 ฝั่งขวา</option>
+      </select>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeM('addSecModal')">ยกเลิก</button>
       <button class="btn btn-gold" onclick="addSecretary()">✓ เพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT SECRETARY -->
+<div class="overlay" id="editSecModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon">👤</div>
+      <h3>แก้ไขเลขาผู้บริหาร</h3>
+      <button class="modal-close" onclick="closeM('editSecModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>ชื่อ-สกุล</label>
+      <input id="esec-name" type="text" placeholder="เช่น น.ส. สมใจ ใจดี" onkeydown="if(event.key==='Enter')saveEditSec()">
+      <label>ชื่อเล่น</label>
+      <input id="esec-nick" type="text" placeholder="เช่น ใจ" onkeydown="if(event.key==='Enter')saveEditSec()">
+      <label>ตำแหน่ง</label>
+      <input id="esec-role" type="text" placeholder="เช่น เลขาผู้บริหาร 1" onkeydown="if(event.key==='Enter')saveEditSec()">
+      <label>ฝั่งที่อยู่</label>
+      <select id="esec-side-select">
+        <option value="left">👈 ฝั่งซ้าย</option>
+        <option value="right">👉 ฝั่งขวา</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeM('editSecModal')">ยกเลิก</button>
+      <button class="btn btn-gold" onclick="saveEditSec()">✓ บันทึก</button>
     </div>
   </div>
 </div>
@@ -908,7 +1182,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
         <button onclick="pickEmoji('🔍')">🔍</button>
       </div>
 
-      <label>กลุ่ม</label>
+      <label>กลุ่มงานหลัก (หัวข้อใหญ่)</label>
       <select id="nd-group"></select>
     </div>
     <div class="modal-acts">
@@ -1060,7 +1334,7 @@ var SEED_GROUPS = [
     depts:[
       {id:'fb',   name:'การตลาด Facebook',    icon:'📘', hl:'none', members:[{id:'fb_s0',n:'น.ส. ปาริฉัตร ยิ้มแต้',k:'อีฟ'},{id:'fb_s1',n:'นาย สมรส สุกสา',k:'พัน'},{id:'fb_s2',n:'น.ส. ณัฐสินี เอกณรงค์พันธ์',k:'ปอ'},{id:'fb_s3',n:'นาย นัฐพันธ์ ดอนสุวรรณ์',k:'เตอร์'},{id:'fb_s4',n:'น.ส. ณฐิดา ธรรมเจริญ',k:'ปลิว'},{id:'fb_s5',n:'น.ส. ศรัณยา ใบเตย',k:'หมิว'},{id:'fb_s6',n:'นาย ธีรภัทร สันติธรรมโชค',k:'โชกุน'}]},
       {id:'tt',   name:'การตลาด TikTok',      icon:'🎵', hl:'none', members:[{id:'tt_s0',n:'น.ส. พฤจิ ต่อจรัส',k:'เพลง'},{id:'tt_s1',n:'นาย จักรพงศ์ ทับนาง',k:'มีน'},{id:'tt_s2',n:'น.ส. ศิริพันธุ์ อุดรรุ่ง',k:'เอ๊ะ'},{id:'tt_s3',n:'น.ส. จิรนันท์ ทองจอน',k:'กีต้าร์'},{id:'tt_s4',n:'น.ส. กนกทิพย์ ดอกประยงค์',k:'กิ๊ฟ'},{id:'tt_s5',n:'นาย ธีรวัฒน์ จันโทกูล',k:'เบ็นซ์'}]},
-      {id:'sp',   name:'การตลาด Shopee',      icon:'🛍️', hl:'none', members:[{id:'sp_s0',n:'น.ส. ไอลดา ลิ้นจี่',k:'อาย'},{id:'sp_s1',n:'น.ส. ธัญกมล อ่อนเชื้อ',k:'หมิว'},{id:'sp_s2',n:'น.ส. รังสิมา สง่าวงศ์',k:'พลอย'},{id:'sp_s3',n:'น.ส. พรศิริ เถรกุล',k:'จอย'},{id:'sp_s4',n:'น.ส. สุทธิดา เอี่ยมนุ่ม',k:'เดียร์'},{id:'sp_s5',n:'น.ส. วิภาวรรณ แก้วมณี',k:'เพชร'},{id:'sp_s6',n:'น.ส. วิชชุนันท์ ทองคำ',k:'ป่าน'}]},
+      {id:'sp',   name:'การตลาด Shopee',      icon:'🛍️', hl:'none', members:[{id:'sp_s0',n:'น.ส. ไอลดา ลิ้นจี่',k:'อาย'},{id:'sp_s1',n:'น.ส. ธัญกมล อ่อนเชื้อ',k:'หมิว'},{id:'sp_s2',n:'น.ส. รังสิมา สง่าวงศ์',k:'พลอย'},{id:'sp_s3',n:'น.ส. พรศิริ เถรกุล',k:'จอย'},{id:'sp_s4',n:'น.ส. สุทธิดา เอี่ยมนุ่ม',k:'เดียร์'},{id:'sp_s5',n:'น.ส. วิภาวรรณ แก้วมณี',k:'เพเพชร'},{id:'sp_s6',n:'น.ส. วิชชุนันท์ ทองคำ',k:'ป่าน'}]},
       {id:'lz',   name:'การตลาด Lazada',      icon:'🟠', hl:'none', members:[{id:'lz_s0',n:'น.ส. จิณณ์จุฑา คำแดง',k:'แป้ง'},{id:'lz_s1',n:'น.ส. ปรียาภรณ์ ดวงมณี',k:'หมิว'}]},
       {id:'kol',  name:'KOL',                 icon:'🌟', hl:'none', members:[{id:'kol_s0',n:'น.ส. สุชานันท์ พันธ์เลิศ',k:'วิว'},{id:'kol_s1',n:'น.ส. สิริกัญญา พรมมา',k:'น้ำทิพย์'},{id:'kol_s2',n:'น.ส. พรรณวษา ลีลาวิวัฒน์',k:'พรีม'}]},
       {id:'live', name:'Live',                icon:'📺', hl:'none', members:[{id:'live_s0',n:'น.ส. พิชชากร เกิดไพบูลย์',k:'ฝ้าย'},{id:'live_s1',n:'น.ส. อาริษา ริ้วทองชุ่ม',k:'ฟ้า'},{id:'live_s2',n:'น.ส. ปิ่นสุดา คงวัน',k:'มีมี่'},{id:'live_s3',n:'นาย วุฒินันท์ ช่วงโชติ',k:'วีแมน'},{id:'live_s4',n:'น.ส. ทิพกฤตา สุขุมจรูญจิตร',k:'เอ๋ย'},{id:'live_s5',n:'น.ส. หทัยรัตน์ พึ่งหวาน',k:'น้ำผึ้ง'},{id:'live_s6',n:'น.ส. ชญาดา นาคเกตุ',k:'ดาว'},{id:'live_s7',n:'น.ส. ปริญญา ไพรวัลย์',k:'จินนี่'},{id:'live_s8',n:'น.ส. ฤทัยรัตน์ ขจรเดช',k:'เนเน่'},{id:'live_s9',n:'น.ส. พัฒน์นรี สงพรมทิพย์',k:'ครีม'}]}
@@ -1069,8 +1343,8 @@ var SEED_GROUPS = [
   {
     id:'g4', name:'งานขาย & ลูกค้า', icon:'💼', theme:'g-purple',
     depts:[
-      {id:'sa',   name:'Sale Admin',          icon:'📋', hl:'none', members:[{id:'sa_s0',n:'น.ส. ชยุตรา พลายงาม',k:'เมย์'},{id:'sa_s1',n:'น.ส. จีรภรณ์ ทับทิมโต',k:'ปีโป้'},{id:'sa_s2',n:'น.ส. ณัชมนต สิทธิ์ถิระวงษ์',k:'กีต้าร์'},{id:'sa_s3',n:'น.ส. วิศรุต สร้อยสำราญ',k:'บิว'},{id:'sa_s4',n:'นาย ณัฐพงษ์ ดาสาลี',k:'โอ'},{id:'sa_s5',n:'นาย รพีพัทธ์ โชติอาริยพงษ์',k:'ริว'},{id:'sa_s6',n:'น.ส. ณัฐชานนท์ ห่วงทอง',k:'อาร์ม'},{id:'sa_s7',n:'น.ส. มัสยา แสงประสิทธิ์',k:'เกล้า'},{id:'sa_s8',n:'น.ส. ผกามาศ โพธิ์บุตร',k:'ฟ้า'},{id:'sa_s9',n:'น.ส. มุทิตา ลี้ฮะจือ',k:'มุก'},{id:'sa_s10',n:'น.ส. ชมพูนุช บำเรอจิต',k:'แป้ง'},{id:'sa_s11',n:'นาย จิระพงศ์ สุดโกศล',k:'อ้น'},{id:'sa_s12',n:'นาย สุวิจักขณ์ กับบุญ',k:'ออย'},{id:'sa_s13',n:'น.ส. อนันตญา อารมณ์',k:'หมูแดง'},{id:'sa_s14',n:'นาย ทศพร แสนปัญญา',k:'เป๊บ'},{id:'sa_s15',n:'น.ส. นิชาดา ผุยรอด',k:'มายด์'},{id:'sa_s16',n:'น.ส. ศุภนิดา เพ็ชรเอือง',k:'เนย'},{id:'sa_s17',n:'น.ส. จินตรา เพชรเที่ยง',k:'จิน'},{id:'sa_s18',n:'น.ส. วนิดา กองเทวี',k:'แบม'},{id:'sa_s19',n:'น.ส. ณัฐฐาพร พันหุ่น',k:'เมย์'},{id:'sa_s20',n:'น.ส. สาวิตรี สุขไกร',k:'แคท'}]},
-      {id:'tel',  name:'Telesale',            icon:'📲', hl:'none', members:[{id:'tel_s0',n:'น.ส. ชลิวรรณ บุญสวัสดิ์',k:'ลูกตาล'},{id:'tel_s1',n:'น.ส. ชนัฏฏา เนื่องโนราช',k:'แครอท'},{id:'tel_s2',n:'น.ส. อาทิตยา สังวาลย์ไพร',k:'สอง'},{id:'tel_s3',n:'น.ส. กัลยาพร นาคะเกตุ',k:'กิ๊ก'},{id:'tel_s4',n:'น.ส. ปาริตา แว่นแก้ว',k:'นุ่น'},{id:'tel_s5',n:'น.ส. กมลณัช เติมงาม',k:'นัท'},{id:'tel_s6',n:'น.ส. สุณิสา ดอนมืด',k:'ปอย'},{id:'tel_s7',n:'น.ส. จิรนุช ประสมเพชร',k:'เก๋'},{id:'tel_s8',n:'น.ส. พรนิภา เพชรคนชม',k:'ซิน'},{id:'tel_s9',n:'นาย ปรเมษฐ สุขไกร',k:'แมน'},{id:'tel_s10',n:'น.ส. ณัฐกฤตา ไหลวัฒนชัย',k:'น้ำตาล'},{id:'tel_s11',n:'น.ส. ฐานิดา งามลม',k:'ข้าว'},{id:'tel_s12',n:'น.ส. ไอยดา พรมมาเดช',k:'กิ๊บ'},{id:'tel_s13',n:'น.ส. ภรณ์ทิพย์ บุญศรี',k:'กระแต'},{id:'tel_s14',n:'น.ส. อภิสรา นุกาศ',k:'อาย'},{id:'tel_s15',n:'น.ส. อริษา เหมือนคง',k:'แพรว'},{id:'tel_s16',n:'น.ส. สุวรรณา ปาละจิน',k:'เกตุ'},{id:'tel_s17',n:'น.ส. วิภารัตน์ ศรีคำนพ',k:'หว้า'},{id:'tel_s18',n:'น.ส. อมราวดี โต๊ะลี',k:'น้อง'},{id:'tel_s19',n:'นาย อานนท์ เซี่ยงเจ็น',k:'เจน'},{id:'tel_s20',n:'น.ส. ณัฐธิดา ศิลปะพงษ์',k:'ขวัญ'},{id:'tel_s21',n:'น.ส. ไอรดา คำดี',k:'ไอซ์'},{id:'tel_s22',n:'น.ส. ปทิตตา บรรดาศักดิ์',k:'ออมสิน'},{id:'tel_s23',n:'น.ส. วัชนีภรณ์ กงจี่',k:'จูน'},{id:'tel_s24',n:'น.ส. จิราพัชร วรรณมณฑา',k:'หยา'}]},
+      {id:'sa',   name:'Sale Admin',          icon:'📋', hl:'none', members:[{id:'sa_s0',n:'น.ส. ชยุตรา พลายงาม',k:'เมย์'},{id:'sa_s1',n:'น.ส. จีรภรณ์ ทับทิมโต',k:'ปีโป้'},{id:'sa_s2',n:'น.ส. ณัชมนต สิทธิ์ถิระวงษ์',k:'กีต้าร์'},{id:'sa_s3',n:'นาย วิศรุต สร้อยสำราญ',k:'บิว'},{id:'sa_s4',n:'นาย ณัฐพงษ์ ดาสาลี',k:'โอ'},{id:'sa_s5',n:'นาย รพีพัทธ์ โชติอาริยพงษ์',k:'ริว'},{id:'sa_s6',n:'น.ส. ณัฐชานนท์ ห่วงทอง',k:'อาร์ม'},{id:'sa_s7',n:'น.ส. มัสยา แสงประสิทธิ์',k:'เกล้า'},{id:'sa_s8',n:'น.ส. ผกามาศ โพธิ์บุตร',k:'ฟ้า'},{id:'sa_s9',n:'น.ส. มุทิตา ลี้ฮะจือ',k:'มุก'},{id:'sa_s10',n:'น.ส. ชมพูนุช บำเรอจิต',k:'แป้ง'},{id:'sa_s11',n:'นาย จิระพงศ์ สุดโกศล',k:'อ้น'},{id:'sa_s12',n:'นาย สุวิจักขณ์ กับบุญ',k:'ออย'},{id:'sa_s13',n:'น.ส. อนันตญา อารมณ์',k:'หมูแดง'},{id:'sa_s14',n:'นาย ทศพร แสนปัญญา',k:'เป๊บ'},{id:'sa_s15',n:'น.ส. นิชาดา ผุยรอด',k:'มายด์'},{id:'sa_s16',n:'น.ส. ศุภนิดา เพ็ชรเอือง',k:'เนย'},{id:'sa_s17',n:'น.ส. จินตรา เพชรเที่ยง',k:'จิน'},{id:'sa_s18',n:'น.ส. วนิดา กองเทวี',k:'แบม'},{id:'sa_s19',n:'น.ส. ณัฐฐาพร พันหุ่น',k:'เมย์'},{id:'sa_s20',n:'น.ส. สาวิตรี สุขไกร',k:'แคท'}]},
+      {id:'tel',  name:'Telesale',            icon:'📲', hl:'none', members:[{id:'tel_s0',n:'น.ส. ชลิวรรณ บุญสวัสดิ์',k:'ลูกตาล'},{id:'tel_s1',n:'น.ส. ชนัฏฏา เนื่องโนราช',k:'แครอท'},{id:'tel_s2',n:'น.ส. อาทิตยา สังวาลย์ไพร',k:'สอง'},{id:'tel_s3',n:'น.ส. กัลยาพร นาคะเกตุ',k:'กิ๊ก'},{id:'tel_s4',n:'น.ส. ปาริตา แว่นแก้ว',k:'นุ่น'},{id:'tel_s5',n:'น.ส. กมลณัช เติมงาม',k:'นัท'},{id:'tel_s6',n:'น.ส. สุณิสา ดอนมืด',k:'ปอย'},{id:'tel_s7',n:'น.ส. จิรนุช ประสมเพชร',k:'เก๋'},{id:'tel_s8',n:'น.ส. พอนิภา เพชรคนชม',k:'ซิน'},{id:'tel_s9',n:'นาย ปรเมษฐ สุขไกร',k:'แมน'},{id:'tel_s10',n:'น.ส. ณัฐกฤตา ไหลวัฒนชัย',k:'น้ำตาล'},{id:'tel_s11',n:'น.ส. ฐานิดา งามลม',k:'ข้าว'},{id:'tel_s12',n:'น.ส. ไอยดา พรมมาเดช',k:'กิ๊บ'},{id:'tel_s13',n:'น.ส. ภรณ์ทิพย์ บุญศรี',k:'กระแต'},{id:'tel_s14',n:'น.ส. อภิสรา นุกาศ',k:'อาย'},{id:'tel_s15',n:'น.ส. อริษา เหมือนคง',k:'แพรว'},{id:'tel_s16',n:'น.ส. สุวรรณา ปาละจิน',k:'เกตุ'},{id:'tel_s17',n:'น.ส. วิภารัตน์ ศรีคำนพ',k:'หว้า'},{id:'tel_s18',n:'น.ส. อมราวดี โต๊ะลี',k:'น้อง'},{id:'tel_s19',n:'นาย อานนท์ เซี่ยงเจ็น',k:'เจน'},{id:'tel_s20',n:'น.ส. ณัฐธิดา ศิลปะพงษ์',k:'ขวัญ'},{id:'tel_s21',n:'น.ส. ไอรดา คำดี',k:'ไอซ์'},{id:'tel_s22',n:'น.ส. ปทิตตา บรรดาศักดิ์',k:'ออมสิน'},{id:'tel_s23',n:'น.ส. วัชนีภรณ์ กงจี่',k:'จูน'},{id:'tel_s24',n:'น.ส. จิราพัชร วรรณมณฑา',k:'หยา'}]},
       {id:'ao',   name:'Add-Order',           icon:'✅', hl:'none', members:[{id:'ao_s0',n:'น.ส. อัมพิกา แก้วเจริญ',k:'พลอย'},{id:'ao_s1',n:'น.ส. อภิญญา แก้วเจริญ',k:'แพรว'},{id:'ao_s2',n:'น.ส. วรดา กรวยทะวิมล',k:'ฟ้า'}]},
       {id:'sup',  name:'Support',             icon:'🛡️', hl:'none', members:[{id:'sup_s0',n:'น.ส. กานต์สิรี สมิทธิทรัพย์',k:'ลูกเกด'},{id:'sup_s1',n:'น.ส. พิมพ์นภา สร้อยทองมูล',k:'แตงกวา'},{id:'sup_s2',n:'น.ส. สิริยาภรณ์ สาลีวัสศอาภรณ์',k:'สิ'},{id:'sup_s3',n:'น.ส. นฤมล บำรุงราษฏร์',k:'มน'},{id:'sup_s4',n:'น.ส. รุ่งทิวา โพธิ์แจ่ม',k:'ออมสิน'},{id:'sup_s5',n:'นางสาว อรทัย ทับสุข',k:'หยก'},{id:'sup_s6',n:'นาย ณัฐพงษ์ นพพลั้ง',k:'แซ็ก'},{id:'sup_s7',n:'นาย จักรกฤษ ชินเครือ',k:'บาส'},{id:'sup_s8',n:'นาย วสุธร กิตติวิริยะการ',k:'นิว'},{id:'sup_s9',n:'นาย ปฏิภาณ คงคาหลวง',k:'ฟิล์ม'},{id:'sup_s10',n:'นาย วิชัย เชื้อเมืองพาน',k:'มาย'},{id:'sup_s11',n:'น.ส. วรลักษณ์ อุบลไทร',k:'ใหม่'},{id:'sup_s12',n:'น.ส. ราตรี อรุณศิริ',k:'ไอติม'}]}
     ]
@@ -1103,7 +1377,6 @@ function seedSecretaries() {
 var groups      = [];
 var secretaries = [];
 
-var gColor      = 'none';
 var pendingDel  = null;
 var hlColors    = ['none','yellow','green','blue','pink','orange','purple','teal','red'];
 var dbReady     = false;
@@ -1113,12 +1386,7 @@ var VALID_THEMES = {
   'g-red':1,'g-blue':1,'g-green':1,'g-amber':1,
   'g-purple':1,'g-teal':1,'g-rose':1,'g-indigo':1
 };
-var VALID_HL = {
-  'none':1,'yellow':1,'green':1,'blue':1,'pink':1,
-  'orange':1,'purple':1,'teal':1,'red':1
-};
 function safeTheme(t){ return VALID_THEMES[t] ? t : 'g-blue'; }
-function safeHL(h){ return VALID_HL[h] ? h : 'none'; }
 function escQ(str) {
   return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 }
@@ -1191,7 +1459,8 @@ function loadFromDB() {
           return {
             id: d.id, name: d.name, icon: d.icon, hl: d.hl || 'none',
             members: (d.members || []).map(function(m) {
-              var hlcVal = m.highlight_color && m.highlight_color !== 'none' ? m.highlight_color : null; return { id: m.id, n: m.full_name, k: m.nickname || '', hlc: hlcVal };
+              var hlcVal = m.highlight_color && m.highlight_color !== 'none' ? m.highlight_color : null;
+              return { id: m.id, n: m.full_name, k: m.nickname || '', hlc: hlcVal };
             })
           };
         })
@@ -1270,10 +1539,12 @@ function render() {
   var grid = document.getElementById('groupsGrid');
   grid.innerHTML = '';
 
-  groups.forEach(function(g) {
+  groups.forEach(function(g, gIndex) {
     var col = document.createElement('div');
     col.className = 'group-col';
     col.id = 'gc-' + g.id;
+    col.dataset.gid = g.id;
+    col.dataset.gidx = gIndex;
 
     // group header
     var head = document.createElement('div');
@@ -1281,17 +1552,47 @@ function render() {
     var total = g.depts.reduce(function(a,d){return a+d.members.length;},0);
     head.innerHTML = '<div class="grp-icon">' + g.icon + '</div>'
       + '<div class="grp-name">' + escH(g.name) + '</div>'
-      + '<div class="grp-cnt">' + total + ' คน</div>';
+      + '<div class="grp-cnt">' + total + ' คน</div>'
+      + '<span class="grp-toggle">▾</span>';
+
+    // Group action buttons (Edit & Delete on hover)
+    var grpActs = document.createElement('div');
+    grpActs.className = 'grp-acts';
+    grpActs.innerHTML =
+      '<button class="grp-edit-btn" title="แก้ไขหัวข้อใหญ่">✏️</button>'
+      + '<button class="grp-del-btn" style="background:#8b2020;" title="ลบหัวข้อใหญ่">🗑</button>';
+
+    grpActs.querySelector('.grp-edit-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      openEditGroup(g.id);
+    });
+    grpActs.querySelector('.grp-del-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      delGroup(g.id);
+    });
+    head.appendChild(grpActs);
     col.appendChild(head);
 
-    // dept cards
+    // dept cards container
     var cards = document.createElement('div');
     cards.className = 'dept-cards';
+    cards.dataset.gid = g.id;
     g.depts.forEach(function(d) {
       cards.appendChild(makeDeptCard(d, g.id));
     });
     col.appendChild(cards);
     grid.appendChild(col);
+
+    // toggle collapse on header click
+    head.addEventListener('click', function(e) {
+      if(e.target.closest('.grp-acts')) return;
+      col.classList.toggle('collapsed');
+    });
+
+    // Initialize Group column drag events
+    initGroupDragDrop(col);
+    // Initialize Dept cards container drag events (for dropping departments inside a group)
+    initDeptContainerDragDrop(cards);
   });
 
   populateGroupSelect();
@@ -1309,19 +1610,21 @@ function render() {
 
 function makeDeptCard(d, gid) {
   var card = document.createElement('div');
-  var safeHl = safeHL(d.hl);
-  card.className = 'dc' + (safeHl !== 'none' ? ' hl-' + safeHl : '');
+  card.className = 'dc';
   card.id = 'dc-' + d.id;
+  card.dataset.did = d.id;
+  card.dataset.gid = gid;
 
   var hlColorMapLocal = {yellow:'#f9a825',green:'#43a047',blue:'#1e88e5',pink:'#e91e63',orange:'#fb8c00',purple:'#8e24aa',teal:'#00897b',red:'#e53935'};
   var rows = d.members.map(function(m, i) {
     var mhlColor = m.hlc ? hlColorMapLocal[m.hlc] : null;
     var mhlStyle = mhlColor ? 'background:' + mhlColor + '22;border-left:3px solid ' + mhlColor + ';' : '';
-    return '<div class="mr' + (m.hlc ? ' mhl' : '') + '" style="' + mhlStyle + '" draggable="true" data-mid="' + escH(m.id) + '" data-did="' + escH(d.id) + '">'
+    return '<div class="mr' + (m.hlc ? ' mhl' : '') + '" style="' + mhlStyle + '" data-mid="' + escH(m.id) + '" data-did="' + escH(d.id) + '">'
       + '<span class="drag-handle">⠿</span>'
       + '<span class="mn">' + (i+1) + '</span>'
-      + '<span class="mname">' + escH(m.n) + '</span>'
+      + '<span class="mname" title="' + escH(m.n) + '">' + escH(m.n) + '</span>'
       + (m.k ? '<span class="mnick">' + escH(m.k) + '</span>' : '')
+      + '<button class="mcolor" onclick="openMemberCtxMenu(event,\'' + escQ(d.id) + '\',\'' + escQ(m.id) + '\')" title="เลือกสี">🎨</button>'
       + '<button class="medit" onclick="openEditMember(\'' + escQ(d.id) + '\',\'' + escQ(m.id) + '\')">✏️</button>'
       + '<button class="mdel" onclick="delMember(\'' + escQ(d.id) + '\',\'' + escQ(m.id) + '\')"  >✕</button>'
       + '</div>';
@@ -1330,24 +1633,23 @@ function makeDeptCard(d, gid) {
   var did = d.id;
   var head = document.createElement('div');
   head.className = 'dc-head';
+  head.draggable = true;
   head.innerHTML = '<span class="dc-icon">' + d.icon + '</span>'
-    + '<span class="dc-name">' + escH(d.name) + '</span>'
+    + '<span class="dc-name" title="' + escH(d.name) + '">' + escH(d.name) + '</span>'
     + '<span class="dc-cnt">' + d.members.length + '</span>'
     + '<div class="dc-acts" id="acts-' + did + '">'
     +   '<button title="เพิ่มชื่อ">＋</button>'
     +   '<button class="dc-edit-btn" title="แก้ไขแผนก">✏️</button>'
-    +   '<button data-hl-btn="1" style="background:rgba(212,170,69,.3);color:#fff" title="ไฮไลท์">🎨</button>'
-    +   '<button style="background:rgba(220,50,50,.5)" title="ลบแผนก">🗑</button>'
+      +   '<button style="background:rgba(220,50,50,.5)" title="ลบแผนก">🗑</button>'
     + '</div>';
 
   card.appendChild(head);
 
   // attach events after DOM creation (avoids escaping issues)
   var btns = head.querySelectorAll('.dc-acts button');
-  btns[0].addEventListener('click', function(){ openAddMemberModal(did); });
-  btns[1].addEventListener('click', function(){ openEditDept(did); });
-  btns[2].addEventListener('click', function(e){ openHlPopup(e, did); });
-  btns[3].addEventListener('click', function(){ delDept(gid, did); });
+  btns[0].addEventListener('click', function(e){ e.stopPropagation(); openAddMemberModal(did); });
+  btns[1].addEventListener('click', function(e){ e.stopPropagation(); openEditDept(did); });
+  btns[2].addEventListener('click', function(e){ e.stopPropagation(); delDept(gid, did); });
 
   var membersDiv = document.createElement('div');
   membersDiv.className = 'members';
@@ -1368,159 +1670,98 @@ function makeDeptCard(d, gid) {
   addRow.querySelector('button').addEventListener('click', function(){ doAddMember(did); });
   card.appendChild(addRow);
 
+  // Initialize individual department card drag events
+  initDeptCardDragDrop(card);
+
   return card;
 }
 
-// adjustSecBar removed - replaced by renderSecretaries()
-
-// ═══ CONTROLS ═══
 
 
-function pickGColor(c, el) {
-  gColor = c;
-  document.querySelectorAll('#gcp .cpill').forEach(function(p){p.classList.remove('on');});
-  el.classList.add('on');
-}
 
-// ═══ HIGHLIGHT POPUP ═══
+
+
+// ═══ MEMBER COLOR PICKER ═══
 var hlColorMap = {yellow:'#f9a825',green:'#43a047',blue:'#1e88e5',pink:'#e91e63',orange:'#fb8c00',purple:'#8e24aa',teal:'#00897b',red:'#e53935'};
-var activeHlColor = 'yellow';
-var activeHlDeptId = null;
+var hlColorLabel = {yellow:'เหลือง',green:'เขียว',blue:'น้ำเงิน',pink:'ชมพู',orange:'ส้ม',purple:'ม่วง',teal:'เขียวน้ำ',red:'แดง'};
+var _cpDid = null, _cpMid = null;
 
-function buildHlPopup(did) {
-  var d = findDept(did);
-  if (!d) return null;
-
-  var popup = document.createElement('div');
-  popup.className = 'hl-popup open';
-  popup.id = 'hlp-' + did;
-
-  var title = document.createElement('div');
-  title.className = 'hl-popup-title';
-  title.textContent = 'เลือกสี → ติ๊กชื่อ';
-  popup.appendChild(title);
-
-  var dotsDiv = document.createElement('div');
-  dotsDiv.className = 'hl-dots';
-  ['none','yellow','green','blue','pink','orange','purple','teal','red'].forEach(function(c) {
-    var dot = document.createElement('div');
-    dot.className = 'hd' + (activeHlColor === c ? ' on' : '');
-    dot.style.cssText = c === 'none' ? 'background:#fff;border:2px solid #aaa;' : 'background:' + hlColorMap[c] + ';';
-    dot.addEventListener('click', function(){ setActiveHlColor(c, dot); });
-    dotsDiv.appendChild(dot);
-  });
-  popup.appendChild(dotsDiv);
-
-  var listDiv = document.createElement('div');
-  listDiv.className = 'hl-members-list';
-  if (d.members.length === 0) {
-    listDiv.innerHTML = '<div style="color:#bbb;font-size:12px;padding:4px;">ยังไม่มีพนักงาน</div>';
-  } else {
-    d.members.forEach(function(m) {
-      var label = document.createElement('label');
-      label.className = 'hl-member-row';
-      var cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.checked = !!m.hlc;
-      cb.addEventListener('change', function() { toggleMemberHL(did, m.id, cb.checked); });
-      var nameSpan = document.createElement('span');
-      nameSpan.textContent = m.n;
-      label.appendChild(cb);
-      label.appendChild(nameSpan);
-      if (m.k) {
-        var nickSpan = document.createElement('span');
-        nickSpan.className = 'hl-member-nick';
-        nickSpan.textContent = '(' + m.k + ')';
-        label.appendChild(nickSpan);
-      }
-      listDiv.appendChild(label);
-    });
-  }
-  popup.appendChild(listDiv);
-  return popup;
+function closeCtxMenu() {
+  var p = document.getElementById('colorPickerPanel');
+  if (p) p.classList.remove('show');
+  _cpDid = null; _cpMid = null;
 }
 
-function openHlPopup(e, did) {
+function openMemberCtxMenu(e, did, mid) {
   e.stopPropagation();
-  // ลบ popup เก่าออกจาก DOM จริงๆ ไม่ใช่แค่ซ่อน
-  document.querySelectorAll('.hl-popup').forEach(function(p){ p.parentNode && p.parentNode.removeChild(p); });
-  var d = findDept(did);
-  if (!d) return;
-  activeHlDeptId = did;
-  var popup = buildHlPopup(did);
-  if (!popup) return;
-  var btn = e.currentTarget;
-  btn.parentNode.style.position = 'relative';
-  btn.parentNode.appendChild(popup);
-}
-
-function setActiveHlColor(c, el) {
-  activeHlColor = c;
-  // update dot states in popup
-  if (el) {
-    var popup = el.closest('.hl-popup');
-    if (popup) popup.querySelectorAll('.hl-dots .hd').forEach(function(d){ d.classList.remove('on'); });
-    el.classList.add('on');
-  }
-}
-
-function toggleMemberHL(did, mid, checked) {
   var d = findDept(did);
   if (!d) return;
   var member = d.members.find(function(m){ return m.id === mid; });
   if (!member) return;
-  var newColor = checked ? activeHlColor : null;
-  member.hlc = newColor;
+  _cpDid = did; _cpMid = mid;
 
-  // อัปเดต DOM เฉพาะ row นั้น ไม่ render ทั้งหน้า
-  var hlColorMapLocal = {yellow:'#f9a825',green:'#43a047',blue:'#1e88e5',pink:'#e91e63',orange:'#fb8c00',purple:'#8e24aa',teal:'#00897b',red:'#e53935'};
-  var card = document.getElementById('dc-' + did);
-  if (card) {
-    var rows = card.querySelectorAll('.mr');
-    d.members.forEach(function(m, i) {
-      if (rows[i]) {
-        var mhlColor = m.hlc ? hlColorMapLocal[m.hlc] : null;
-        rows[i].style.cssText = mhlColor ? 'background:' + mhlColor + '22;border-left:3px solid ' + mhlColor + ';border-radius:5px;' : '';
-        rows[i].classList.toggle('mhl', !!m.hlc);
-        var nameEl = rows[i].querySelector('.mname');
-        if (nameEl) nameEl.style.fontWeight = m.hlc ? '800' : '';
-      }
-    });
+  document.getElementById('cpTitle').textContent = '🎨 ' + member.n;
+
+  var dotsEl = document.getElementById('cpDots');
+  dotsEl.innerHTML = '';
+  // dot ล้างสี (สีขาว/เทา)
+  var dotNone = document.createElement('div');
+  dotNone.className = 'cp-dot' + (!member.hlc ? ' active' : '');
+  dotNone.title = 'ไม่มีสี';
+  dotNone.style.cssText = 'background:#f0f0f0;border-color:#bbb;';
+  dotNone.addEventListener('click', function(ev){ ev.stopPropagation(); applyMemberHL(did, mid, null); closeCtxMenu(); });
+  dotsEl.appendChild(dotNone);
+
+  Object.keys(hlColorMap).forEach(function(c) {
+    var dot = document.createElement('div');
+    dot.className = 'cp-dot' + (member.hlc === c ? ' active' : '');
+    dot.title = hlColorLabel[c] || c;
+    dot.style.background = hlColorMap[c];
+    dot.addEventListener('click', function(ev){ ev.stopPropagation(); applyMemberHL(did, mid, c); closeCtxMenu(); });
+    dotsEl.appendChild(dot);
+  });
+
+  var clr = document.getElementById('cpClear');
+  if (member.hlc) {
+    clr.classList.add('show');
+    clr.onclick = function(ev){ ev.stopPropagation(); applyMemberHL(did, mid, null); closeCtxMenu(); };
+  } else {
+    clr.classList.remove('show');
   }
 
-  // save to DB — ส่ง 'none' แทน null เพื่อให้ตรงกับ schema
-  if (dbReady && mid) {
-    var dbColor = newColor || 'none';
-    gql(
-      'mutation SetMHL($id: String!, $hlc: String) { update_members_by_pk(pk_columns: {id: $id}, _set: {highlight_color: $hlc}) { id } }',
-      { id: mid, hlc: dbColor }
-    )
-    .then(function(){ showToast('✅ บันทึกสีแล้ว', 'ok'); })
-    .catch(function(e){ showToast('❌ ' + e.message, 'err'); });
-  }
+  var panel = document.getElementById('colorPickerPanel');
+  panel.style.left = (e.clientX + 8) + 'px';
+  panel.style.top  = (e.clientY + 8) + 'px';
+  panel.classList.add('show');
+  setTimeout(function(){
+    var r = panel.getBoundingClientRect();
+    if (r.right  > window.innerWidth  - 4) panel.style.left = (e.clientX - r.width  - 4) + 'px';
+    if (r.bottom > window.innerHeight - 4) panel.style.top  = (e.clientY - r.height - 4) + 'px';
+  }, 0);
 }
 
-// close popup when clicking outside
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.hl-popup') && !e.target.closest('[data-hl-btn]')) {
-    document.querySelectorAll('.hl-popup').forEach(function(p){ p.parentNode && p.parentNode.removeChild(p); });
-  }
-});
-
-function setHL(did, c) {
+function applyMemberHL(did, mid, color) {
   var d = findDept(did);
   if (!d) return;
-  d.hl = c;
-  if (dbReady) {
-    gql(`
-      mutation SetHL($id: String!, $hl: String!) {
-        update_departments_by_pk(pk_columns: {id: $id}, _set: {hl: $hl}) { id }
-      }
-    `, { id: did, hl: c })
-    .catch(function(e) { showToast('❌ ' + e.message, 'err'); });
-  }
+  var m = d.members.find(function(x){ return x.id === mid; });
+  if (!m) return;
+  m.hlc = color || null;
   render();
+  if (dbReady) {
+    gql(
+      'mutation SetMemberHL($id: String!, $hlc: String) { update_members_by_pk(pk_columns:{id:$id}, _set:{highlight_color:$hlc}) { id } }',
+      { id: mid, hlc: color || null }
+    ).catch(function(e){ showToast('❌ บันทึกสีไม่สำเร็จ: ' + e.message, 'err'); });
+  }
 }
+
+document.addEventListener('click', function(ev){
+  var panel = document.getElementById('colorPickerPanel');
+  if (panel && panel.classList.contains('show') && !panel.contains(ev.target)) {
+    closeCtxMenu();
+  }
+});
+document.addEventListener('keydown', function(ev){ if(ev.key==='Escape') closeCtxMenu(); });
 
 // ═══ SECRETARY CRUD ═══
 function renderSecretaries() {
@@ -1534,22 +1775,25 @@ function renderSecretaries() {
     var div = document.createElement('div');
     div.className = 'sec-node';
     div.innerHTML =
-      '<button class="sec-del" onclick="delSecretary(\'' + escQ(s.id) + '\')" title="ลบเลขา">✕</button>'
+      '<div class="sec-acts-container">'
+      + '<button class="sec-edit" onclick="openEditSec(\'' + escQ(s.id) + '\')" title="แก้ไขเลขา">✏️</button>'
+      + '<button class="sec-del" onclick="delSecretary(\'' + escQ(s.id) + '\')" title="ลบเลขา">✕</button>'
+      + '</div>'
       + '<div class="sec-role">' + escH(s.role) + '</div>'
       + '<div class="sec-name">' + escH(s.n) + '</div>'
       + (s.k ? '<div class="sec-nick">' + escH(s.k) + '</div>' : '');
     return div;
   }
 
-  // rebuild left side
+  // rebuild left side - reverse so newest/closest is adjacent to CEO
   leftEl.innerHTML = '';
   var leftSecs = secretaries.filter(function(s){ return s.side === 'left'; });
   leftSecs.slice().reverse().forEach(function(s){ leftEl.appendChild(makeNode(s)); });
 
-  // rebuild right side
+  // rebuild right side - reverse to ensure symmetry (newest/closest is adjacent to CEO)
   rightEl.innerHTML = '';
   var rightSecs = secretaries.filter(function(s){ return s.side === 'right'; });
-  rightSecs.forEach(function(s){ rightEl.appendChild(makeNode(s)); });
+  rightSecs.slice().reverse().forEach(function(s){ rightEl.appendChild(makeNode(s)); });
 
   // show/hide connectors
   if (connL) connL.style.display = leftSecs.length > 0 ? 'block' : 'none';
@@ -1562,6 +1806,7 @@ function openAddSec(side) {
   document.getElementById('sec-nick').value = '';
   var num = secretaries.length + 1;
   document.getElementById('sec-role').value = 'เลขาผู้บริหาร ' + num;
+  document.getElementById('sec-side-select').value = addSecSide;
   openM('addSecModal');
   setTimeout(function(){ document.getElementById('sec-name').focus(); }, 80);
 }
@@ -1571,18 +1816,17 @@ function addSecretary() {
   if (!nm) { document.getElementById('sec-name').focus(); return; }
   var nk = document.getElementById('sec-nick').value.trim();
   var rl = document.getElementById('sec-role').value.trim() || ('เลขาผู้บริหาร ' + (secretaries.length + 1));
+  var sd = document.getElementById('sec-side-select').value;
   var newId = 'sec_' + Date.now();
-  var newSec = { id: newId, n: nm, k: nk, role: rl, side: addSecSide };
+  var newSec = { id: newId, n: nm, k: nk, role: rl, side: sd };
   closeM('addSecModal');
   if (dbReady) {
-    // Optimistic: แสดงผลทันที แล้วค่อย sync กับ DB
     secretaries.push(newSec);
     renderSecretaries();
     gql('mutation AddSec($obj: secretaries_insert_input!) { insert_secretaries_one(object: $obj) { id } }',
-      { obj: { id: newId, full_name: nm, nickname: nk, role: rl, side: addSecSide, sort_order: secretaries.length - 1 } })
+      { obj: { id: newId, full_name: nm, nickname: nk, role: rl, side: sd, sort_order: secretaries.length - 1 } })
     .then(function(){
       showToast('✅ เพิ่มเลขา ' + nm + ' แล้ว', 'ok');
-      // reload from DB to get latest sort order
       return gql('query { secretaries(order_by: {sort_order: asc}) { id full_name nickname role side sort_order } }');
     })
     .then(function(data){
@@ -1594,7 +1838,6 @@ function addSecretary() {
       }
     })
     .catch(function(e){
-      // Rollback: ลบออกจาก local ถ้า DB fail
       secretaries = secretaries.filter(function(x){ return x.id !== newId; });
       renderSecretaries();
       showToast('❌ เพิ่มเลขาไม่สำเร็จ: ' + e.message, 'err');
@@ -1602,6 +1845,57 @@ function addSecretary() {
   } else {
     secretaries.push(newSec);
     renderSecretaries();
+  }
+}
+
+var edSecId = null;
+function openEditSec(sid) {
+  var s = secretaries.find(function(x){ return x.id === sid; });
+  if (!s) return;
+  edSecId = sid;
+  document.getElementById('esec-name').value = s.n;
+  document.getElementById('esec-nick').value = s.k || '';
+  document.getElementById('esec-role').value = s.role;
+  document.getElementById('esec-side-select').value = s.side || 'left';
+  openM('editSecModal');
+  setTimeout(function(){ document.getElementById('esec-name').focus(); }, 80);
+}
+
+function saveEditSec() {
+  var nm = document.getElementById('esec-name').value.trim();
+  if (!nm) { document.getElementById('esec-name').focus(); return; }
+  var nk = document.getElementById('esec-nick').value.trim();
+  var rl = document.getElementById('esec-role').value.trim();
+  var sd = document.getElementById('esec-side-select').value;
+
+  var s = secretaries.find(function(x){ return x.id === edSecId; });
+  if (!s) return;
+
+  var oldN = s.n, oldK = s.k, oldR = s.role, oldS = s.side;
+  var capturedId = edSecId;
+
+  s.n = nm;
+  s.k = nk;
+  s.role = rl;
+  s.side = sd;
+
+  edSecId = null;
+  closeM('editSecModal');
+  renderSecretaries();
+
+  if (dbReady) {
+    gql(
+      'mutation EditSec($id: String!, $n: String!, $k: String!, $role: String!, $side: String!) { update_secretaries_by_pk(pk_columns: {id: $id}, _set: {full_name: $n, nickname: $k, role: $role, side: $side}) { id } }',
+      { id: capturedId, n: nm, k: nk, role: rl, side: sd }
+    )
+    .then(function(){ showToast('✅ แก้ไขข้อมูลเลขาสำเร็จ', 'ok'); })
+    .catch(function(e){
+      s.n = oldN; s.k = oldK; s.role = oldR; s.side = oldS;
+      renderSecretaries();
+      showToast('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
+    });
+  } else {
+    showToast('✅ แก้ไขข้อมูลเลขาสำเร็จ (ออฟไลน์)', 'ok');
   }
 }
 
@@ -1624,6 +1918,183 @@ function delSecretary(sid) {
     } else {
       secretaries = secretaries.filter(function(x){ return x.id !== sid; });
       renderSecretaries();
+    }
+  };
+  openM('confirmModal');
+}
+
+// ═══ ADD & EDIT & DELETE GROUP (หัวข้อใหญ่) ═══
+function openAddGroup() {
+  document.getElementById('ng-name').value = '';
+  document.getElementById('ng-icon').value = '📁';
+  document.getElementById('groupIconPreviewBox').textContent = '📁';
+  document.getElementById('ng-theme').value = 'g-blue';
+  
+  // Reset picked class on emoji buttons
+  document.querySelectorAll('#groupEmojiPicks button').forEach(function(b) {
+    b.classList.toggle('picked', b.textContent === '📁');
+  });
+
+  openM('addGroupModal');
+  setTimeout(function(){ document.getElementById('ng-name').focus(); }, 80);
+}
+
+function updateGroupIconPreview() {
+  var v = document.getElementById('ng-icon').value.trim() || '📁';
+  document.getElementById('groupIconPreviewBox').textContent = v;
+  document.querySelectorAll('#groupEmojiPicks button').forEach(function(b) {
+    b.classList.toggle('picked', b.textContent === v);
+  });
+}
+
+function pickGroupEmoji(e) {
+  document.getElementById('ng-icon').value = e;
+  document.getElementById('groupIconPreviewBox').textContent = e;
+  document.querySelectorAll('#groupEmojiPicks button').forEach(function(b) {
+    b.classList.toggle('picked', b.textContent === e);
+  });
+}
+
+function addGroup() {
+  var nm = document.getElementById('ng-name').value.trim();
+  if (!nm) { document.getElementById('ng-name').focus(); return; }
+  var ic = document.getElementById('ng-icon').value.trim() || '📁';
+  var th = document.getElementById('ng-theme').value;
+  var newId = 'g' + Date.now();
+  var sortOrder = groups.length;
+  var newGrp = { id: newId, name: nm, icon: ic, theme: th, depts: [] };
+
+  if (dbReady) {
+    groups.push(newGrp);
+    closeM('addGroupModal');
+    render();
+    gql(`
+      mutation AddGroup($obj: groups_insert_input!) {
+        insert_groups_one(object: $obj) { id }
+      }
+    `, { obj: { id: newId, name: nm, icon: ic, theme: th, sort_order: sortOrder } })
+    .then(function() { showToast('✅ เพิ่มหัวข้อใหญ่ ' + nm + ' แล้ว', 'ok'); })
+    .catch(function(e) {
+      groups = groups.filter(function(x){ return x.id !== newId; });
+      render();
+      showToast('❌ บันทึกไม่สำเร็จ ข้อมูลถูกย้อนกลับ: ' + e.message, 'err');
+    });
+  } else {
+    groups.push(newGrp);
+    closeM('addGroupModal');
+    render();
+  }
+}
+
+var edGroupId = null;
+function openEditGroup(gid) {
+  var g = groups.find(function(x){ return x.id === gid; });
+  if (!g) return;
+  edGroupId = gid;
+  document.getElementById('eg-name').value = g.name;
+  document.getElementById('eg-icon').value = g.icon;
+  document.getElementById('editGroupIconPreviewBox').textContent = g.icon;
+  document.getElementById('eg-theme').value = g.theme;
+  
+  // Update picked state for edit modal picks
+  document.querySelectorAll('#editGroupEmojiPicks button').forEach(function(b) {
+    b.classList.toggle('picked', b.textContent === g.icon);
+  });
+
+  openM('editGroupModal');
+  setTimeout(function(){ document.getElementById('eg-name').focus(); }, 80);
+}
+
+function updateEditGroupIconPreview() {
+  var v = document.getElementById('eg-icon').value.trim() || '📁';
+  document.getElementById('editGroupIconPreviewBox').textContent = v;
+  document.querySelectorAll('#editGroupEmojiPicks button').forEach(function(b) {
+    b.classList.toggle('picked', b.textContent === v);
+  });
+}
+
+function pickEditGroupEmoji(e) {
+  document.getElementById('eg-icon').value = e;
+  document.getElementById('editGroupIconPreviewBox').textContent = e;
+  document.querySelectorAll('#editGroupEmojiPicks button').forEach(function(b) {
+    b.classList.toggle('picked', b.textContent === e);
+  });
+}
+
+function saveEditGroup() {
+  var nm = document.getElementById('eg-name').value.trim();
+  if (!nm) { document.getElementById('eg-name').focus(); return; }
+  var ic = document.getElementById('eg-icon').value.trim() || '📁';
+  var th = document.getElementById('eg-theme').value;
+  var g = groups.find(function(x){ return x.id === edGroupId; });
+  if (!g) return;
+
+  var oldName = g.name, oldIcon = g.icon, oldTheme = g.theme;
+  var capturedId = edGroupId;
+  g.name = nm;
+  g.icon = ic;
+  g.theme = th;
+  edGroupId = null;
+  closeM('editGroupModal');
+  render();
+
+  if (dbReady) {
+    gql(
+      'mutation EditGroup($id: String!, $name: String!, $icon: String!, $theme: String!) { update_groups_by_pk(pk_columns:{id:$id}, _set:{name:$name, icon:$icon, theme:$theme}) { id } }',
+      { id: capturedId, name: nm, icon: ic, theme: th }
+    )
+    .then(function(){ showToast('✅ แก้ไขหัวข้อใหญ่ ' + nm + ' แล้ว', 'ok'); })
+    .catch(function(e){
+      g.name = oldName; g.icon = oldIcon; g.theme = oldTheme;
+      render();
+      showToast('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
+    });
+  }
+}
+
+function delGroup(gid) {
+  var g = groups.find(function(x){ return x.id === gid; });
+  if (!g) return;
+
+  var totalMembers = g.depts.reduce(function(a, d) { return a + d.members.length; }, 0);
+  document.getElementById('confirmMsg').innerHTML =
+    'ต้องการลบหัวข้อกลุ่มงานใหญ่ <span class="confirm-name">' + g.icon + ' ' + escH(g.name) + '</span> ?<br>'
+    + (g.depts.length > 0
+      ? '<span style="color:#b91c1c;font-size:12px;">⚠️ จะทำให้แผนกย่อย ' + g.depts.length + ' แผนก และพนักงานรวม ' + totalMembers + ' คนถูกลบทั้งหมด!</span>'
+      : '<span style="color:#15803d;font-size:12px;">✓ กลุ่มนี้ยังไม่มีแผนกย่อย</span>');
+
+  pendingDel = function(){
+    if (dbReady) {
+      var deptIds = g.depts.map(function(d){ return d.id; });
+      var allMemberIds = [];
+      g.depts.forEach(function(d) {
+        d.members.forEach(function(m) {
+          if (m.id) allMemberIds.push(m.id);
+        });
+      });
+
+      var deleteMembers = allMemberIds.length > 0
+        ? gql('mutation DelGroupMembers($ids: [String!]!) { delete_members(where: {id: {_in: $ids}}) { affected_rows } }', { ids: allMemberIds })
+        : Promise.resolve();
+
+      deleteMembers
+        .then(function() {
+          return deptIds.length > 0
+            ? gql('mutation DelGroupDepts($ids: [String!]!) { delete_departments(where: {id: {_in: $ids}}) { affected_rows } }', { ids: deptIds })
+            : Promise.resolve();
+        })
+        .then(function() {
+          return gql('mutation DelGroup($id: String!) { delete_groups_by_pk(id: $id) { id } }', { id: gid });
+        })
+        .then(function() {
+          groups = groups.filter(function(x){ return x.id !== gid; });
+          render();
+          showToast('🗑️ ลบหัวข้อกลุ่มงานหลัก ' + g.name + ' แล้ว', 'ok');
+        })
+        .catch(function(e) { showToast('❌ ลบกลุ่มงานหลักไม่สำเร็จ: ' + e.message, 'err'); });
+    } else {
+      groups = groups.filter(function(x){ return x.id !== gid; });
+      render();
     }
   };
   openM('confirmModal');
@@ -1712,7 +2183,6 @@ function saveEditMember() {
     )
     .then(function(){ showToast('✅ แก้ไข ' + nm + ' แล้ว', 'ok'); })
     .catch(function(e){
-      // rollback
       m.n = oldN;
       render();
       showToast('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
@@ -1722,158 +2192,349 @@ function saveEditMember() {
   emMemberId = null;
 }
 
-// ═══ DRAG & DROP ═══
-var dragState = null; // { mid, fromDid, fromIndex }
-
-function initDragDrop(membersDiv) {
-  membersDiv.addEventListener('dragstart', function(e) {
-    var row = e.target.closest('.mr[draggable]');
-    if (!row) return;
-    dragState = {
-      mid: row.dataset.mid,
-      fromDid: row.dataset.did,
-      fromIndex: Array.from(membersDiv.querySelectorAll('.mr')).indexOf(row)
-    };
-    row.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', row.dataset.mid);
-  });
-
-  membersDiv.addEventListener('dragend', function(e) {
-    var row = e.target.closest('.mr');
-    if (row) row.classList.remove('dragging');
-    document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
-      r.classList.remove('drop-above','drop-below');
-    });
-    document.querySelectorAll('.members.drag-over').forEach(function(m){
-      m.classList.remove('drag-over');
-    });
-    dragState = null;
-  });
-
-  membersDiv.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    membersDiv.classList.add('drag-over');
-    // find nearest row for indicator
-    var rows = Array.from(membersDiv.querySelectorAll('.mr:not(.dragging)'));
-    document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
-      r.classList.remove('drop-above','drop-below');
-    });
-    var nearest = null, nearestDist = Infinity;
-    rows.forEach(function(r) {
-      var rect = r.getBoundingClientRect();
-      var mid = rect.top + rect.height / 2;
-      var dist = Math.abs(e.clientY - mid);
-      if (dist < nearestDist) { nearestDist = dist; nearest = r; }
-    });
-    if (nearest) {
-      var rect = nearest.getBoundingClientRect();
-      if (e.clientY < rect.top + rect.height / 2) {
-        nearest.classList.add('drop-above');
-      } else {
-        nearest.classList.add('drop-below');
-      }
-    }
-  });
-
-  membersDiv.addEventListener('dragleave', function(e) {
-    if (!membersDiv.contains(e.relatedTarget)) {
-      membersDiv.classList.remove('drag-over');
-      document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
-        r.classList.remove('drop-above','drop-below');
-      });
-    }
-  });
-
-  membersDiv.addEventListener('drop', function(e) {
-    e.preventDefault();
-    membersDiv.classList.remove('drag-over');
-    if (!dragState) return;
-
-    var toDid = membersDiv.dataset.did;
-    var rows = Array.from(membersDiv.querySelectorAll('.mr:not(.dragging)'));
-    var aboveRow = membersDiv.querySelector('.mr.drop-above');
-    var belowRow = membersDiv.querySelector('.mr.drop-below');
-    document.querySelectorAll('.mr.drop-above,.mr.drop-below').forEach(function(r){
-      r.classList.remove('drop-above','drop-below');
-    });
-
-    // determine insert index in target dept
-    var toIndex;
-    if (aboveRow) {
-      toIndex = rows.indexOf(aboveRow);
-    } else if (belowRow) {
-      toIndex = rows.indexOf(belowRow) + 1;
-    } else {
-      toIndex = rows.length; // drop at end
-    }
-
-    var fromDept = findDept(dragState.fromDid);
-    var toDept   = findDept(toDid);
-    if (!fromDept || !toDept) return;
-
-    var member = fromDept.members.find(function(m){ return m.id === dragState.mid; });
-    if (!member) return;
-
-    var oldFromMembers = fromDept.members.slice();
-    var oldToMembers   = toDept.members.slice();
-    var samedept = (toDid === dragState.fromDid);
-
-    fromDept.members = fromDept.members.filter(function(m){ return m.id !== dragState.mid; });
-
-    if (samedept) {
-      toIndex = Math.min(toIndex, fromDept.members.length);
-      toDept.members.splice(toIndex, 0, member);
-    } else {
-      member.dept_id = toDid;
-      toIndex = Math.min(toIndex, toDept.members.length);
-      toDept.members.splice(toIndex, 0, member);
-    }
-
-    render();
-    showToast('↕️ ย้าย ' + member.n + ' แล้ว', 'ok');
-
-    var capturedFromDid = dragState.fromDid;
-    dragState = null;
-
-    // sync to DB
-    if (dbReady) {
-      var mutations = [];
-      toDept.members.forEach(function(m, i) {
-        mutations.push(
-          gql('mutation MoveMember($id: String!, $deptId: String!, $sort: Int!) { update_members_by_pk(pk_columns:{id:$id}, _set:{dept_id:$deptId, sort_order:$sort}) { id } }',
-            { id: m.id, deptId: toDid, sort: i })
-        );
-      });
-      // if cross-dept, also reindex source dept
-      if (toDid !== capturedFromDid) {
-        fromDept.members.forEach(function(m, i) {
-          mutations.push(
-            gql('mutation ReorderMember($id: String!, $sort: Int!) { update_members_by_pk(pk_columns:{id:$id}, _set:{sort_order:$sort}) { id } }',
-              { id: m.id, sort: i })
-          );
-        });
-      }
-      Promise.all(mutations)
-        .then(function(){ showToast('✅ บันทึกตำแหน่งแล้ว', 'ok'); })
-        .catch(function(e){
-          fromDept.members = oldFromMembers;
-          toDept.members   = oldToMembers;
-          render();
-          showToast('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
-        });
-    }
-  });
-}
-
 function findDept(did) {
-  for (var gi=0; gi<groups.length; gi++) {
-    var d = groups[gi].depts.find(function(x){return x.id===did;});
-    if (d) return d;
-  }
+  for(var gi=0;gi<groups.length;gi++)
+    for(var di=0;di<groups[gi].depts.length;di++)
+      if(groups[gi].depts[di].id===did) return groups[gi].depts[di];
   return null;
 }
+
+// ═══════════════════════════════════════════════════════
+// MEMBER DRAG & DROP — Pointer Events
+// ═══════════════════════════════════════════════════════
+var dragMid = null, dragDid = null;
+var pmGhost = null, pmOffX = 0, pmOffY = 0;
+var pmStartX = 0, pmStartY = 0, pmIsDrag = false, pmStartEvent = null;
+var dropAboveRow = null, dropBelowRow = null;
+var currentDropZone = null;
+
+function findDept(did) {
+  for(var gi=0;gi<groups.length;gi++)
+    for(var di=0;di<groups[gi].depts.length;di++)
+      if(groups[gi].depts[di].id===did) return groups[gi].depts[di];
+  return null;
+}
+
+function clearDropIndicators() {
+  document.querySelectorAll('.mr.drop-above').forEach(function(r){ r.classList.remove('drop-above'); });
+  document.querySelectorAll('.mr.drop-below').forEach(function(r){ r.classList.remove('drop-below'); });
+  document.querySelectorAll('.members.drag-over').forEach(function(m){ m.classList.remove('drag-over'); });
+  dropAboveRow = null; dropBelowRow = null;
+}
+
+function pmCleanup() {
+  if(pmGhost && pmGhost.parentNode) pmGhost.parentNode.removeChild(pmGhost);
+  pmGhost = null;
+  document.querySelectorAll('.mr.dragging').forEach(function(r){ r.classList.remove('dragging'); });
+  clearDropIndicators();
+  dragMid = null; dragDid = null; currentDropZone = null;
+  pmIsDrag = false; pmStartEvent = null;
+}
+
+function initDragDrop(membersDiv) { /* pointer events delegation below */ }
+
+document.addEventListener('pointerdown', function(e) {
+  if(e.button !== 0) return;
+  if(e.target.closest('.dc-head')) return;
+  var row = e.target.closest('.mr');
+  if(!row) return;
+  if(e.target.closest('.mdel,.medit,.mcolor')) return;
+
+  dragMid = row.dataset.mid;
+  dragDid = row.dataset.did;
+  pmStartX = e.clientX;
+  pmStartY = e.clientY;
+  pmStartEvent = {clientX: e.clientX, clientY: e.clientY};
+
+  var rect = row.getBoundingClientRect();
+  pmOffX = e.clientX - rect.left;
+  pmOffY = e.clientY - rect.top;
+
+  pmGhost = document.createElement('div');
+  pmGhost.style.cssText = 'position:fixed;z-index:99999;pointer-events:none;opacity:0;background:#fff;border:1.5px solid var(--gold2);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap;left:'+(e.clientX-pmOffX)+'px;top:'+(e.clientY-pmOffY)+'px;';
+  pmGhost.textContent = row.querySelector('.mname') ? row.querySelector('.mname').textContent : '';
+  document.body.appendChild(pmGhost);
+
+  row.classList.add('dragging');
+  row.setPointerCapture(e.pointerId);
+  e.preventDefault();
+}, true);
+
+document.addEventListener('pointermove', function(e) {
+  if(!dragMid || !pmGhost) return;
+  pmGhost.style.left = (e.clientX - pmOffX) + 'px';
+  pmGhost.style.top  = (e.clientY - pmOffY) + 'px';
+  // แสดง ghost เมื่อขยับเกิน 5px (= เป็น drag จริง ไม่ใช่ click)
+  if (Math.abs(e.clientX - pmStartX) > 5 || Math.abs(e.clientY - pmStartY) > 5) {
+    pmGhost.style.opacity = '0.9';
+    pmIsDrag = true;
+  }
+
+  pmGhost.style.display = 'none';
+  var el = document.elementFromPoint(e.clientX, e.clientY);
+  pmGhost.style.display = '';
+
+  clearDropIndicators();
+  var zone = el ? el.closest('.members') : null;
+  if(!zone) return;
+  zone.classList.add('drag-over');
+  currentDropZone = zone;
+
+  var rows = Array.from(zone.querySelectorAll('.mr:not(.dragging)'));
+  var nearest=null, nearestDist=Infinity, above=true;
+  rows.forEach(function(r){
+    var rc=r.getBoundingClientRect(), mid=rc.top+rc.height/2, dist=Math.abs(e.clientY-mid);
+    if(dist<nearestDist){nearestDist=dist;nearest=r;above=e.clientY<mid;}
+  });
+  if(nearest) { nearest.classList.add(above?'drop-above':'drop-below'); if(above)dropAboveRow=nearest; else dropBelowRow=nearest; }
+}, true);
+
+document.addEventListener('pointerup', function(e) {
+  if(!dragMid) return;
+  // ถ้าไม่ได้ขยับ (= click ปกติ) → ยกเลิก drag โดยไม่ทำอะไร
+  if (!pmIsDrag) {
+    pmCleanup();
+    return;
+  }
+
+  pmGhost.style.display='none';
+  var el = document.elementFromPoint(e.clientX, e.clientY);
+  pmGhost.style.display='';
+  var zone = currentDropZone || (el ? el.closest('.members') : null);
+
+  if(zone) {
+    var toDid=zone.dataset.did, savedAbove=dropAboveRow, savedBelow=dropBelowRow;
+    var savedMid=dragMid, savedFromDid=dragDid;
+    var fromDept=findDept(savedFromDid), toDept=findDept(toDid);
+    if(fromDept && toDept) {
+      var member=fromDept.members.find(function(m){return m.id===savedMid;});
+      if(member) {
+        var rows=Array.from(zone.querySelectorAll('.mr')), toIndex;
+        if(savedAbove){var idx=rows.findIndex(function(r){return r===savedAbove;});toIndex=idx>=0?idx:rows.length;}
+        else if(savedBelow){var idx=rows.findIndex(function(r){return r===savedBelow;});toIndex=idx>=0?idx+1:rows.length;}
+        else toIndex=rows.length;
+        var samedept=toDid===savedFromDid;
+        var oldFrom=fromDept.members.slice(), oldTo=toDept.members.slice();
+        fromDept.members=fromDept.members.filter(function(m){return m.id!==savedMid;});
+        if(samedept){toIndex=Math.min(toIndex,fromDept.members.length);toDept.members.splice(toIndex,0,member);}
+        else{member.dept_id=toDid;toIndex=Math.min(toIndex,toDept.members.length);toDept.members.splice(toIndex,0,member);}
+        pmCleanup(); render(); showToast('↕️ ย้าย '+member.n+' แล้ว','ok');
+        if(dbReady){
+          var mutations=[];
+          toDept.members.forEach(function(m,i){mutations.push(gql('mutation MoveMember($id: String!, $deptId: String!, $sort: Int!) { update_members_by_pk(pk_columns:{id:$id}, _set:{dept_id:$deptId, sort_order:$sort}) { id } }',{id:m.id,deptId:toDid,sort:i}));});
+          if(!samedept) fromDept.members.forEach(function(m,i){mutations.push(gql('mutation ReorderMember($id: String!, $sort: Int!) { update_members_by_pk(pk_columns:{id:$id}, _set:{sort_order:$sort}) { id } }',{id:m.id,sort:i}));});
+          Promise.all(mutations).then(function(){showToast('✅ บันทึกตำแหน่งแล้ว','ok');}).catch(function(err){fromDept.members=oldFrom;toDept.members=oldTo;render();showToast('❌ บันทึกไม่สำเร็จ: '+err.message,'err');});
+        }
+        return;
+      }
+    }
+  }
+  pmCleanup();
+}, true);
+
+document.addEventListener('pointercancel', function(){ pmCleanup(); }, true);
+
+
+
+function initDeptCardDragDrop(deptCard) { /* จัดการด้วย event delegation ด้านล่าง */ }
+function initGroupDragDrop(col) {
+  col.setAttribute('draggable', 'true');
+
+  col.addEventListener('dragstart', function(e) {
+    if(e.target.closest('.dc-head, .mr, .dc-acts, .grp-acts')) { e.preventDefault(); return; }
+    gDragId = col.dataset.gid;
+    col.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  col.addEventListener('dragend', function() {
+    col.classList.remove('dragging');
+    document.querySelectorAll('.group-col').forEach(function(c){
+      c.classList.remove('drag-over-left','drag-over-right');
+    });
+    gDragId = null;
+  });
+
+  col.addEventListener('dragover', function(e) {
+    if(!gDragId || gDragId === col.dataset.gid) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    var rect = col.getBoundingClientRect();
+    var mid = rect.left + rect.width / 2;
+    document.querySelectorAll('.group-col').forEach(function(c){
+      c.classList.remove('drag-over-left','drag-over-right');
+    });
+    col.classList.add(e.clientX < mid ? 'drag-over-left' : 'drag-over-right');
+  });
+
+  col.addEventListener('dragleave', function() {
+    col.classList.remove('drag-over-left','drag-over-right');
+  });
+
+  col.addEventListener('drop', function(e) {
+    if(!gDragId || gDragId === col.dataset.gid) return;
+    e.preventDefault();
+    col.classList.remove('drag-over-left','drag-over-right');
+    var fromIdx = groups.findIndex(function(g){ return g.id === gDragId; });
+    var toIdx   = groups.findIndex(function(g){ return g.id === col.dataset.gid; });
+    if(fromIdx < 0 || toIdx < 0) return;
+    var rect = col.getBoundingClientRect();
+    var mid = rect.left + rect.width / 2;
+    var insertIdx = e.clientX < mid ? toIdx : toIdx + 1;
+    var moved = groups.splice(fromIdx, 1)[0];
+    if(insertIdx > fromIdx) insertIdx--;
+    groups.splice(insertIdx, 0, moved);
+    render();
+  });
+}
+var gDragId = null;
+function initDeptContainerDragDrop(c)   { /* no-op */ }
+
+// ════════════════════════════════════════
+// DEPT DRAG & DROP — Pointer Events
+// ════════════════════════════════════════
+var pdDid = null, pdGid = null;
+var pdGhost = null, pdOffX = 0, pdOffY = 0;
+var pdTarget = null; // .dc ที่กำลัง hover
+var pdIndicator = null;
+
+function pdCleanup() {
+  if(pdGhost && pdGhost.parentNode) pdGhost.parentNode.removeChild(pdGhost);
+  pdGhost = null;
+  document.querySelectorAll('.dc.dragging-dept').forEach(function(c){ c.classList.remove('dragging-dept'); });
+  document.querySelectorAll('.dept-cards.drag-over-dept').forEach(function(c){ c.classList.remove('drag-over-dept'); });
+  document.querySelectorAll('.dc.drop-above-dept,.dc.drop-below-dept').forEach(function(c){
+    c.classList.remove('drop-above-dept','drop-below-dept');
+  });
+  pdDid = null; pdGid = null; pdTarget = null;
+}
+
+document.addEventListener('pointerdown', function(e) {
+  if(e.button !== 0) return; // เฉพาะคลิกซ้ายเท่านั้น
+  var head = e.target.closest('.dc-head');
+  if(!head) return;
+  if(e.target.closest('.dc-acts')) return;
+  var card = head.closest('.dc');
+  if(!card) return;
+
+  pdDid = card.dataset.did;
+  pdGid = card.dataset.gid;
+
+  var rect = card.getBoundingClientRect();
+  pdOffX = e.clientX - rect.left;
+  pdOffY = e.clientY - rect.top;
+
+  // ghost
+  pdGhost = card.cloneNode(true);
+  pdGhost.style.cssText = 'position:fixed;z-index:99999;pointer-events:none;opacity:0.85;width:' + rect.width + 'px;box-shadow:0 8px 24px rgba(0,0,0,.25);border-radius:10px;left:' + (e.clientX - pdOffX) + 'px;top:' + (e.clientY - pdOffY) + 'px;';
+  document.body.appendChild(pdGhost);
+
+  card.style.opacity = '0.35';
+  head.setPointerCapture(e.pointerId);
+  e.preventDefault();
+}, true);
+
+document.addEventListener('pointermove', function(e) {
+  if(!pdDid || !pdGhost) return;
+  pdGhost.style.left = (e.clientX - pdOffX) + 'px';
+  pdGhost.style.top  = (e.clientY - pdOffY) + 'px';
+
+  // find drop target
+  pdGhost.style.display = 'none';
+  var el = document.elementFromPoint(e.clientX, e.clientY);
+  pdGhost.style.display = '';
+
+  document.querySelectorAll('.dept-cards.drag-over-dept').forEach(function(c){ c.classList.remove('drag-over-dept'); });
+  document.querySelectorAll('.dc.drop-above-dept,.dc.drop-below-dept').forEach(function(c){
+    c.classList.remove('drop-above-dept','drop-below-dept');
+  });
+
+  var zone = el ? el.closest('.dept-cards') : null;
+  if(!zone) return;
+  zone.classList.add('drag-over-dept');
+
+  var cards = Array.from(zone.querySelectorAll('.dc:not([data-did="' + pdDid + '"])'));
+  var nearest = null, nearestDist = Infinity, above = true;
+  cards.forEach(function(c) {
+    var r = c.getBoundingClientRect();
+    var mid = r.top + r.height / 2;
+    var dist = Math.abs(e.clientY - mid);
+    if(dist < nearestDist){ nearestDist = dist; nearest = c; above = e.clientY < mid; }
+  });
+  if(nearest) nearest.classList.add(above ? 'drop-above-dept' : 'drop-below-dept');
+}, true);
+
+document.addEventListener('pointerup', function(e) {
+  if(!pdDid) return;
+
+  // restore opacity
+  var srcCard = document.querySelector('.dc[data-did="' + pdDid + '"]');
+  if(srcCard) srcCard.style.opacity = '';
+
+  pdGhost.style.display = 'none';
+  var el = document.elementFromPoint(e.clientX, e.clientY);
+  pdGhost.style.display = '';
+
+  var zone = el ? el.closest('.dept-cards') : null;
+
+  if(zone) {
+    var toGid = zone.dataset.gid;
+    var savedDid = pdDid, savedGid = pdGid;
+
+    var above = zone.querySelector('.dc.drop-above-dept');
+    var below = zone.querySelector('.dc.drop-below-dept');
+
+    var fromGroup = groups.find(function(g){ return g.id === savedGid; });
+    var toGroup   = groups.find(function(g){ return g.id === toGid; });
+    if(fromGroup && toGroup) {
+      var dept = fromGroup.depts.find(function(d){ return d.id === savedDid; });
+      if(dept) {
+        var cards = Array.from(zone.querySelectorAll('.dc'));
+        var toIndex;
+        if(above) {
+          toIndex = cards.findIndex(function(c){ return c === above; });
+          if(toIndex < 0) toIndex = cards.length;
+        } else if(below) {
+          toIndex = cards.findIndex(function(c){ return c === below; });
+          toIndex = toIndex >= 0 ? toIndex + 1 : cards.length;
+        } else {
+          toIndex = cards.length;
+        }
+
+        var sameGroup = toGid === savedGid;
+        var oldFromDepts = fromGroup.depts.slice();
+        var oldToDepts = toGroup.depts.slice();
+
+        fromGroup.depts = fromGroup.depts.filter(function(d){ return d.id !== savedDid; });
+        dept.group_id = toGid;
+        if(sameGroup) toIndex = Math.min(toIndex, fromGroup.depts.length);
+        else toIndex = Math.min(toIndex, toGroup.depts.length);
+        toGroup.depts.splice(toIndex, 0, dept);
+
+        pdCleanup();
+        render();
+        showToast('↕️ ย้ายแผนก ' + dept.name + ' แล้ว', 'ok');
+
+        if(dbReady) {
+          var mutations = [];
+          if(!sameGroup) mutations.push(gql('mutation MoveDept($id: String!, $gid: String!) { update_departments_by_pk(pk_columns:{id:$id}, _set:{group_id:$gid}) { id } }', {id:savedDid,gid:toGid}));
+          toGroup.depts.forEach(function(d,i){ mutations.push(gql('mutation SortDept($id: String!, $sort: Int!) { update_departments_by_pk(pk_columns:{id:$id}, _set:{sort_order:$sort}) { id } }', {id:d.id,sort:i})); });
+          if(!sameGroup) fromGroup.depts.forEach(function(d,i){ mutations.push(gql('mutation SortDept($id: String!, $sort: Int!) { update_departments_by_pk(pk_columns:{id:$id}, _set:{sort_order:$sort}) { id } }', {id:d.id,sort:i})); });
+          Promise.all(mutations)
+            .then(function(){ showToast('✅ บันทึกตำแหน่งแล้ว','ok'); })
+            .catch(function(err){ fromGroup.depts=oldFromDepts; toGroup.depts=oldToDepts; render(); showToast('❌ บันทึกไม่สำเร็จ: '+err.message,'err'); });
+        }
+        return;
+      }
+    }
+  }
+
+  pdCleanup();
+}, true);
+
+document.addEventListener('pointercancel', function(){ pdCleanup(); }, true);
+
+
 
 // ═══ ADD DEPT ═══
 function populateGroupSelect() {
@@ -1886,7 +2547,6 @@ function populateGroupSelect() {
 function updateIconPreview() {
   var v = document.getElementById('nd-icon').value.trim() || '🏢';
   document.getElementById('iconPreviewBox').textContent = v;
-  // update picked state
   document.querySelectorAll('#emojiPicks button').forEach(function(b){
     b.classList.toggle('picked', b.textContent === v);
   });
@@ -1899,11 +2559,16 @@ function pickEmoji(e) {
   });
 }
 function openAddDept() {
+  if(groups.length === 0) {
+    showToast('⚠️ กรุณาเพิ่มหัวข้อใหญ่ก่อนอย่างน้อย 1 กลุ่ม', 'err');
+    return;
+  }
   document.getElementById('nd-name').value = '';
   document.getElementById('nd-icon').value = '🏢';
   document.getElementById('iconPreviewBox').textContent = '🏢';
   document.querySelectorAll('#emojiPicks button').forEach(function(b){b.classList.remove('picked');});
-  document.querySelector('#emojiPicks button').classList.add('picked');
+  var firstBtn = document.querySelector('#emojiPicks button');
+  if (firstBtn) firstBtn.classList.add('picked');
   populateGroupSelect();
   openM('addModal');
   setTimeout(function(){document.getElementById('nd-name').focus();}, 80);
@@ -1916,38 +2581,51 @@ function addDept() {
   var g   = groups.find(function(x){return x.id===gid;});
   if (!g) return;
   var newId = 'd' + Date.now();
-  var sortOrder = g.depts.length;
-  var newDept = { id: newId, name: nm, icon: ic, hl: gColor==='none'?'none':gColor, members: [] };
+  
+  var newDept = { id: newId, name: nm, icon: ic, hl: 'none', members: [] };
+  
+  // ปรับแต่งให้แผนกที่เพิ่มเข้ามาใหม่ขึ้นไปอยู่บนสุดแทนด้านล่าง
+  g.depts.unshift(newDept); 
+  closeM('addModal');
+  render();
 
   if (dbReady) {
-    g.depts.push(newDept);
-    closeM('addModal');
-    render();
-    gql(`
-      mutation AddDept($obj: departments_insert_input!) {
-        insert_departments_one(object: $obj) { id }
+    var mutations = [];
+    g.depts.forEach(function(d, idx) {
+      if (d.id === newId) {
+        mutations.push(
+          gql(`
+            mutation AddDept($obj: departments_insert_input!) {
+              insert_departments_one(object: $obj) { id }
+            }
+          `, { obj: { id: newId, group_id: gid, name: nm, icon: ic, hl: newDept.hl, sort_order: idx } })
+        );
+      } else {
+        mutations.push(
+          gql(`
+            mutation UpdateDeptSort($id: String!, $sort: Int!) {
+              update_departments_by_pk(pk_columns: {id: $id}, _set: {sort_order: $sort}) { id }
+            }
+          `, { id: d.id, sort: idx })
+        );
       }
-    `, { obj: { id: newId, group_id: gid, name: nm, icon: ic, hl: newDept.hl, sort_order: sortOrder } })
-    .then(function() { showToast('✅ เพิ่มแผนก ' + nm + ' แล้ว', 'ok'); })
+    });
+
+    Promise.all(mutations)
+    .then(function() { showToast('✅ เพิ่มแผนก ' + nm + ' ไว้บนสุดแล้ว', 'ok'); })
     .catch(function(e) {
       g.depts = g.depts.filter(function(x){ return x.id !== newId; });
       render();
       showToast('❌ บันทึกไม่สำเร็จ ข้อมูลถูกย้อนกลับ: ' + e.message, 'err');
     });
   } else {
-    g.depts.push(newDept);
-    closeM('addModal');
-    render();
+    showToast('✅ เพิ่มแผนก ' + nm + ' ไว้บนสุดแล้ว (ออฟไลน์)', 'ok');
   }
 }
 
 // ═══ ADD MEMBER (POPUP MODAL) ═══
 var amDeptId = null;
 var amQueue  = [];
-
-function focusAdd(did) {
-  openAddMemberModal(did);
-}
 
 function openAddMemberModal(did) {
   var d = findDept(did);
@@ -2029,7 +2707,6 @@ function amSaveAll() {
       showToast('✅ เพิ่มพนักงาน ' + count + ' คนแล้ว', 'ok');
     })
     .catch(function(e) {
-      // Rollback: remove members that failed to save
       d.members = d.members.filter(function(m){ return addedIds.indexOf(m.id) === -1; });
       render();
       showToast('❌ บันทึกไม่สำเร็จ ข้อมูลถูกย้อนกลับ: ' + e.message, 'err');
@@ -2112,7 +2789,6 @@ function delDept(gid, did) {
       : '<span style="color:#15803d;font-size:12px;">✓ แผนกนี้ยังไม่มีพนักงาน</span>');
   pendingDel = function(){
     if (dbReady) {
-      // ลบ members ก่อน แล้วค่อยลบ dept (ป้องกัน orphan records)
       var memberIds = d.members.map(function(m){ return m.id; }).filter(Boolean);
       var deleteMembers = memberIds.length > 0
         ? gql('mutation DelDeptMembers($ids: [String!]!) { delete_members(where: {id: {_in: $ids}}) { affected_rows } }', { ids: memberIds })
@@ -2134,10 +2810,11 @@ function delDept(gid, did) {
   };
   openM('confirmModal');
 }
+
 function doDelete(){
   if(!pendingDel) return;
   var fn = pendingDel;
-  pendingDel = null; // clear BEFORE calling to prevent double-fire
+  pendingDel = null;
   closeM('confirmModal');
   fn();
 }
@@ -2146,7 +2823,6 @@ function doDelete(){
 function openM(id){
   var el = document.getElementById(id);
   if(!el) return;
-  // If trying to open confirmModal while one is already open, refuse
   if(id === 'confirmModal' && el.classList.contains('open')) return;
   el.classList.add('open');
 }
@@ -2295,6 +2971,36 @@ function renderStrength() {
 }
 
 loadFromDB();
+</script>
+
+
+
+
+
+
+
+<!-- COLOR PICKER PANEL -->
+<div id="colorPickerPanel" onclick="event.stopPropagation()">
+  <div id="cpTitle">🎨 เลือกสี</div>
+  <div id="cpDots"></div>
+  <div id="cpClear">✕ &nbsp;ล้างสี</div>
+</div>
+
+<script>
+function fixConnectorLine() {
+  var grid = document.getElementById('groupsGrid');
+  var wrap = document.getElementById('levelGroups');
+  if(!grid || !wrap) return;
+  var w = grid.scrollWidth;
+  // update ::before width via a style tag
+  var st = document.getElementById('connector-style');
+  if(!st){ st = document.createElement('style'); st.id='connector-style'; document.head.appendChild(st); }
+  st.textContent = '#levelGroups::before{ width:' + w + 'px !important; }';
+}
+var _origRenderLine = render;
+render = function(){ _origRenderLine(); setTimeout(fixConnectorLine, 100); };
+window.addEventListener('load', function(){ setTimeout(fixConnectorLine, 400); });
+window.addEventListener('resize', fixConnectorLine);
 </script>
 </body>
 </html>
