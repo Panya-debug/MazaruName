@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ผังองค์กร มาซารุ มาร์เก็ตติ้ง</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -100,7 +103,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 
 /* ════════ TREE LAYOUT ════════ */
 .org-wrap{
-  padding:0 12px 40px;
+  padding:0 12px 80px;
   display:flex;flex-direction:column;align-items:center;
 }
 
@@ -116,7 +119,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   background:linear-gradient(135deg,rgba(212,170,69,.06) 0%,transparent 60%);
 }
 .node-ceo .role{font-size:10px;letter-spacing:2.5px;color:var(--gold3);text-transform:uppercase;margin-bottom:6px;font-weight:700;}
-.node-ceo .name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:18px;font-weight:700;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.node-ceo .name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:18px;font-weight:700;position:relative;white-space:normal;overflow:visible;word-break:break-word;}
 
 /* ── CEO ROW (CEO always centered, secretaries on sides) ── */
 .ceo-row{
@@ -153,7 +156,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 }
 .sec-node:hover{box-shadow:var(--shadow-md);}
 .sec-role{font-size:9.5px;letter-spacing:1.5px;color:#7c4dff;font-weight:800;text-transform:uppercase;}
-.sec-name{font-weight:700;color:var(--navy2);margin-top:3px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sec-name{font-weight:700;color:var(--navy2);margin-top:3px;font-size:13px;white-space:normal;overflow:visible;word-break:break-word;}
 .sec-nick{font-size:11px;color:var(--sub);margin-top:1px;}
 
 /* Secretary action buttons menu */
@@ -176,6 +179,15 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   display:inline-flex;flex-direction:column;align-items:center;gap:8px;
   flex-shrink:0;position:relative;z-index:2;
 }
+/* เส้นจาก ceo-wrap ลงมา — แทน .ceo-to-groups */
+.ceo-wrap::after{
+  content:'';
+  display:block;
+  width:1.5px;
+  height:36px;
+  background:linear-gradient(180deg,var(--gold2),var(--con));
+  margin:0 auto;
+}
 .ceo-add-btns{
   display:flex;gap:6px;justify-content:center;
   opacity:0;pointer-events:none;
@@ -195,14 +207,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 
 /* vertical line from CEO down to groups */
 .ceo-to-groups{
-  width:1.5px;height:36px;
-  background:linear-gradient(180deg,var(--gold2),var(--con));
-  flex-shrink:0;
-  align-self:center;
-  margin:0 auto;
-  display:block;
-  position:relative;
-  z-index:1;
+  display:none; /* ใช้ ceo-wrap::after แทน */
 }
 
 
@@ -211,7 +216,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 .level-groups{
   width:100%;max-width:100%;position:relative;
   overflow-x:auto;overflow-y:visible;
-  padding:0 8px 8px;
+  padding:0 8px 60px;
   scrollbar-width:thin;
 }
 .level-groups::-webkit-scrollbar{height:9px;}
@@ -222,10 +227,12 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   content:'';position:absolute;top:0;left:0;
   height:1.5px;background:var(--con);
   width:100%;
+  /* width จะถูก override โดย fixConnectorLine() ใน JS */
 }
 .groups-grid{
   display:flex;align-items:flex-start;flex-wrap:nowrap;
   gap:0 6px;width:max-content;min-width:100%;padding-top:0;
+  padding-bottom:60px;
 }
 
 /* GROUP COLUMN */
@@ -234,7 +241,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   position:relative;padding:0 6px 20px;
   cursor: grab;
   transition: transform 0.2s, opacity 0.2s;
-  flex:0 0 300px;min-width:300px;max-width:300px;
+  flex:0 0 300px;min-width:300px;max-width:300px;width:300px;
 }
 
 .group-col::before{
@@ -255,7 +262,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   width:1.5px;height:14px;background:var(--con);
 }
 .grp-icon{font-size:20px;margin-bottom:4px;}
-.grp-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.grp-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:13.5px;font-weight:700;white-space:normal;overflow:visible;word-break:break-word;}
 .grp-cnt{font-size:11px;opacity:.7;margin-top:2px;}
 
 /* Group Actions hover menu */
@@ -310,31 +317,29 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 
 .dc{
   background:var(--white);border:1px solid var(--border);
-  border-radius:var(--radius);overflow:hidden;text-align:left;
-  transition:box-shadow .2s,border-color .2s;
+  border-radius:var(--radius);overflow:visible;text-align:left;
+  transition:box-shadow .2s,border-color .2s;width:100%;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
 
-.dc:hover{box-shadow:var(--shadow-md);border-color:var(--border2);}
-
-
+.dc:hover{box-shadow:0 4px 16px rgba(0,0,0,.10);border-color:var(--border2);}
 
 .dc-head{
-  background:var(--navy2);color:#fff;
-  padding:8px 12px;display:flex;align-items:center;gap:7px;
   background:linear-gradient(90deg,var(--navy) 0%,var(--navy2) 100%);
-  user-select: none;
-  cursor: grab;
+  color:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px;
+  user-select:none;cursor:grab;
+  border-radius:var(--radius) var(--radius) 0 0;
 }
-.dc-icon{font-size:13px;flex-shrink:0;}
-.dc-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;flex:1;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-width:0;cursor:default;}
+.dc-icon{font-size:14px;flex-shrink:0;}
+.dc-name{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:12.5px;font-weight:700;flex:1;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-width:0;cursor:default;letter-spacing:.2px;}
 .dc-cnt{
-  font-size:10px;background:rgba(255,255,255,.15);
-  padding:2px 7px;border-radius:10px;white-space:nowrap;letter-spacing:.3px;
+  font-size:10px;background:rgba(255,255,255,.18);
+  padding:2px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.3px;font-weight:600;
 }
 .dc-acts{display:flex;gap:3px;opacity:0;transition:opacity .18s;flex-shrink:0;}
 .dc:hover .dc-acts{opacity:1;}
 .dc-acts button{
-  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
   border-radius:5px;color:#fff;cursor:pointer;font-size:12px;
   width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;
   transition:background .13s;flex-shrink:0;
@@ -369,21 +374,95 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 .dc.drop-below-dept {
   border-bottom: 3px solid var(--gold2);
 }
-/* ─── DRAG & DROP (Pointer Events) ─── */
-.mr{cursor:grab;}
-.mr.dragging{opacity:.35;background:rgba(13,31,53,.08);cursor:grabbing;}
-.mr .drag-handle{
-  display:none;
+/* ═══ MEMBER CARDS (new design) ═══ */
+.members{padding:8px;padding-bottom:4px;}
+.mr{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--white);
+  margin-bottom:5px;
+  transition:box-shadow .15s, border-color .15s;
+  position:relative;
+  overflow:visible;
 }
+.mr:last-child{margin-bottom:0;}
+.mr:hover{box-shadow:0 2px 10px rgba(0,0,0,.08);border-color:var(--border2);}
+.mr.mhl{border-left-width:3px;}
+
+/* number badge */
+.mn{
+  font-size:10px;color:#bbb;font-weight:700;
+  min-width:16px;text-align:center;padding-top:2px;
+  line-height:1;flex-shrink:0;
+}
+
+/* name + nick wrapper — takes all remaining space */
+.mr-info{
+  display:flex;flex-direction:column;gap:3px;
+  flex:1;min-width:0;
+  padding-right:60px; /* reserve space for hover buttons */
+}
+.mname{
+  font-size:13px;font-weight:600;
+  color:var(--text);line-height:1.4;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  cursor:default;display:block;
+  width:100%;max-width:100%;
+}
+.mnick{
+  display:inline-block;align-self:flex-start;
+  font-size:10.5px;color:var(--sub);
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:20px;padding:1px 9px;
+  white-space:nowrap;line-height:1.5;
+}
+
+/* action buttons — float top-right, only on hover */
+.mr-acts{
+  position:absolute;top:6px;right:6px;
+  display:flex;gap:2px;align-items:center;
+  opacity:0;transition:opacity .15s;
+}
+.mr:hover .mr-acts{opacity:1;}
+
+.mcolor,.medit,.mdel{
+  background:none;border:none;border-radius:5px;
+  cursor:pointer;font-size:12px;padding:3px 4px;
+  transition:background .13s;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.mcolor:hover{background:rgba(0,0,0,.07);}
+.medit{color:#1e88e5;}
+.medit:hover{background:#e3f2fd;}
+.mdel{color:#ef5350;}
+.mdel:hover{background:#ffebee;}
+
+
+
+
+
+.mcolor{
+  opacity:0;background:none;border:none;border-radius:4px;
+  cursor:pointer;font-size:13px;padding:2px 4px;
+  transition:background .13s;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+}
+.mr:hover .mcolor{opacity:1;}
+.mcolor:hover{background:rgba(0,0,0,.06);}
+/* ═══ DRAG & DROP ═══ */
+.mr{cursor:grab;}
+.mr.dragging{opacity:.35;cursor:grabbing;}
 .members.drag-over{
   background:rgba(212,170,69,.07);
   outline:2px dashed var(--gold2);
-  outline-offset:-3px;
-  border-radius:6px;
+  outline-offset:-3px;border-radius:6px;
 }
 .mr.drop-above{border-top:2px solid var(--gold2);}
 .mr.drop-below{border-bottom:2px solid var(--gold2);}
-/* Ghost element ที่ลอยตามเมาส์ */
 .drag-ghost{
   position:fixed;z-index:99999;pointer-events:none;
   background:var(--white);border:1.5px solid var(--gold2);border-radius:8px;
@@ -392,41 +471,6 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;
   transform:translate(-50%,-50%) rotate(2deg);
 }
-
-
-
-.members{padding:8px 10px;}
-.mr{display:flex;align-items:center;gap:6px;padding:7px 5px;border-radius:5px;transition:background .13s;min-width:0;overflow:visible;}
-.mr:hover{background:rgba(0,0,0,.04);}
-.mr.mhl{border-radius:5px;padding-left:8px;}
-.mn{font-size:9px;color:var(--border2);min-width:14px;text-align:right;font-weight:700;}
-.mname{flex:1;font-size:12px;font-weight:600;line-height:1.4;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;cursor:default;}
-.mnick{
-  font-size:11px;color:var(--sub);background:var(--bg);
-  border:1px solid var(--border);border-radius:8px;
-  padding:1px 5px;white-space:nowrap;flex-shrink:0;
-}
-.mdel{
-  opacity:0;background:none;border:none;border-radius:4px;
-  color:#ef5350;cursor:pointer;font-size:11px;padding:2px 5px;
-  transition:background .13s;
-}
-.mr:hover .mdel{opacity:1;}
-.mdel:hover{background:#ffebee;}
-.medit{
-  opacity:0;background:none;border:none;border-radius:4px;
-  color:#1e88e5;cursor:pointer;font-size:11px;padding:2px 5px;
-  transition:background .13s;
-}
-.mr:hover .medit{opacity:1;}
-.medit:hover{background:#e3f2fd;}
-.mcolor{
-  opacity:0;background:none;border:none;border-radius:4px;
-  cursor:pointer;font-size:13px;padding:2px 4px;
-  transition:background .13s;line-height:1;display:inline-flex;align-items:center;justify-content:center;
-}
-.mr:hover .mcolor{opacity:1;}
-.mcolor:hover{background:rgba(0,0,0,.06);}
 /* ── color picker panel ── */
 #colorPickerPanel{
   display:none;position:fixed;z-index:999999;
@@ -462,19 +506,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 
 
 
-.add-row{display:none;padding:6px 10px 8px;border-top:1px solid var(--border);background:var(--bg);}
-.add-form{display:flex;gap:5px;}
-.add-form input{
-  flex:1;padding:5px 9px;border:1.5px solid var(--border);border-radius:6px;
-  font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-size:12.5px;outline:none;background:#fff;
-}
-.add-form input:focus{border-color:var(--gold2);}
-.add-form input.ni{max-width:76px;}
-.add-form button{
-  padding:5px 11px;background:var(--gold2);color:var(--navy);
-  border:none;border-radius:6px;cursor:pointer;
-  font-size:12px;font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;font-weight:700;
-}
+/* add-row removed — ใช้ modal แทน */
 
 /* FOOTER */
 .modal-footer{
@@ -813,7 +845,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   .grp-head{max-width:180px;}
   .dc{break-inside:avoid;page-break-inside:avoid;}
   .dc-name{font-size:11px;}
-  .mname{font-size:10.5px;}
+  .mname{font-size:10.5px;white-space:normal;overflow:visible;text-overflow:clip;}
   .org-wrap{padding:0 10px 20px;}
 }
 
@@ -822,12 +854,13 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 /* ── Collapse / Expand Groups ── */
 .group-col .dept-cards{
   transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s;
-  overflow: hidden;
-  max-height: 2000px;
+  overflow: visible;
+  max-height: none;
   opacity: 1;
 }
 .group-col.collapsed .dept-cards{
   max-height: 0;
+  overflow: hidden;
   opacity: 0;
   pointer-events: none;
 }
@@ -870,6 +903,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
   <button class="btn btn-indigo" onclick="openStrengthModal()">📊 อัตรากำลัง</button>
   <div class="tsep"></div>
   <button class="btn btn-print" onclick="window.print()">🖨️ ปริ้น</button>
+  <button class="btn btn-gold" onclick="exportPDF()" id="exportPdfBtn">📄 Export PDF</button>
 </div>
 
 <!-- PAGE -->
@@ -927,7 +961,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
 
 </div>
 
-<div class="org-foot">ผังองค์กร มาซารุ มาร์เก็ตติ้ง จำกัด &nbsp;|&nbsp; จัดทำโดยแผนกบุคคล</div>
+<div class="org-foot">ผังองค์กร มาซารุ มาร์เก็ตติ้ง จำกัด &nbsp;|&nbsp; จัดทำโดยแผนก IT</div>
 </div>
 
 <!-- MODAL ADD GROUP (หัวข้อใหญ่) -->
@@ -1481,6 +1515,17 @@ function loadFromDB() {
     groups = JSON.parse(JSON.stringify(SEED_GROUPS));
     secretaries = JSON.parse(JSON.stringify(SEED_SECRETARIES));
     dbReady = false;
+    /* restore group order จาก localStorage (offline) */
+    try {
+      var _saved = localStorage.getItem('grpOrder');
+      if (_saved) {
+        var _order = JSON.parse(_saved);
+        var _map = {}; groups.forEach(function(g){ _map[g.id]=g; });
+        var _sorted = _order.map(function(id){ return _map[id]; }).filter(Boolean);
+        groups.forEach(function(g){ if(_order.indexOf(g.id)<0) _sorted.push(g); });
+        groups = _sorted;
+      }
+    } catch(ex) {}
     render();
   });
 }
@@ -1620,13 +1665,16 @@ function makeDeptCard(d, gid) {
     var mhlColor = m.hlc ? hlColorMapLocal[m.hlc] : null;
     var mhlStyle = mhlColor ? 'background:' + mhlColor + '22;border-left:3px solid ' + mhlColor + ';' : '';
     return '<div class="mr' + (m.hlc ? ' mhl' : '') + '" style="' + mhlStyle + '" data-mid="' + escH(m.id) + '" data-did="' + escH(d.id) + '">'
-      + '<span class="drag-handle">⠿</span>'
       + '<span class="mn">' + (i+1) + '</span>'
+      + '<div class="mr-info">'
       + '<span class="mname" title="' + escH(m.n) + '">' + escH(m.n) + '</span>'
       + (m.k ? '<span class="mnick">' + escH(m.k) + '</span>' : '')
+      + '</div>'
+      + '<div class="mr-acts">'
       + '<button class="mcolor" onclick="openMemberCtxMenu(event,\'' + escQ(d.id) + '\',\'' + escQ(m.id) + '\')" title="เลือกสี">🎨</button>'
       + '<button class="medit" onclick="openEditMember(\'' + escQ(d.id) + '\',\'' + escQ(m.id) + '\')">✏️</button>'
       + '<button class="mdel" onclick="delMember(\'' + escQ(d.id) + '\',\'' + escQ(m.id) + '\')"  >✕</button>'
+      + '</div>'
       + '</div>';
   }).join('');
 
@@ -1658,17 +1706,7 @@ function makeDeptCard(d, gid) {
   initDragDrop(membersDiv);
   card.appendChild(membersDiv);
 
-  var addRow = document.createElement('div');
-  addRow.className = 'add-row';
-  addRow.innerHTML = '<div class="add-form">'
-    + '<input type="text" id="in-n-' + did + '" placeholder="ชื่อ-สกุล">'
-    + '<input type="text" class="ni" id="in-k-' + did + '" placeholder="ชื่อเล่น">'
-    + '<button>เพิ่ม</button>'
-    + '</div>';
-  addRow.querySelector('input').addEventListener('keydown', function(e){ if(e.key==='Enter') doAddMember(did); });
-  addRow.querySelectorAll('input')[1].addEventListener('keydown', function(e){ if(e.key==='Enter') doAddMember(did); });
-  addRow.querySelector('button').addEventListener('click', function(){ doAddMember(did); });
-  card.appendChild(addRow);
+  // add-row ถูกแทนที่ด้วย modal (openAddMemberModal) เพื่อป้องกัน input ล้นออกนอกหน้าจอ
 
   // Initialize individual department card drag events
   initDeptCardDragDrop(card);
@@ -2385,6 +2423,23 @@ function initGroupDragDrop(col) {
     if(insertIdx > fromIdx) insertIdx--;
     groups.splice(insertIdx, 0, moved);
     render();
+
+    /* ── save order ── */
+    var orderIds = groups.map(function(g){ return g.id; });
+    if (dbReady) {
+      /* บันทึก sort_order ลง Nhost DB */
+      var mutations = groups.map(function(g, i) {
+        return gql(
+          'mutation($id:String!,$so:Int!){update_groups_by_pk(pk_columns:{id:$id},_set:{sort_order:$so}){id}}',
+          { id: g.id, so: i }
+        );
+      });
+      Promise.all(mutations)
+        .then(function(){ showToast('✅ บันทึกลำดับแล้ว', 'ok'); })
+        .catch(function(err){ showToast('❌ บันทึกลำดับไม่สำเร็จ: ' + err.message, 'err'); });
+    }
+    /* บันทึกลง localStorage เสมอ (ใช้เป็น fallback และ offline) */
+    try { localStorage.setItem('grpOrder', JSON.stringify(orderIds)); } catch(ex) {}
   });
 }
 var gDragId = null;
@@ -3001,6 +3056,101 @@ var _origRenderLine = render;
 render = function(){ _origRenderLine(); setTimeout(fixConnectorLine, 100); };
 window.addEventListener('load', function(){ setTimeout(fixConnectorLine, 400); });
 window.addEventListener('resize', fixConnectorLine);
+</script>
+<script>
+function exportPDF() {
+  var btn = document.getElementById('exportPdfBtn');
+  if (!btn) return;
+  var origBtn = btn.innerHTML;
+  btn.innerHTML = '⏳ กำลัง Export...';
+  btn.disabled = true;
+
+  /* --- เก็บ style เดิมของ elements ที่ต้องแก้ชั่วคราว --- */
+  var toolbar    = document.querySelector('.toolbar');
+  var page       = document.querySelector('.page');
+  var lvlGroups  = document.getElementById('levelGroups');
+  var groupsGrid = document.getElementById('groupsGrid');
+
+  var saved = {
+    tbDisplay  : toolbar    ? toolbar.style.display       : '',
+    lgOverflow : lvlGroups  ? lvlGroups.style.overflow     : '',
+    lgWidth    : lvlGroups  ? lvlGroups.style.width        : '',
+    lgHeight   : lvlGroups  ? lvlGroups.style.height       : '',
+    pgOverflow : page       ? page.style.overflow          : '',
+  };
+
+  /* --- ขยายทุก container ให้เต็มเนื้อหา ไม่ scroll --- */
+  if (toolbar)   toolbar.style.display   = 'none';
+  if (lvlGroups) {
+    lvlGroups.style.overflow = 'visible';
+    lvlGroups.style.width    = groupsGrid ? (groupsGrid.scrollWidth + 40) + 'px' : 'max-content';
+    lvlGroups.style.height   = 'auto';
+  }
+  if (page) page.style.overflow = 'visible';
+
+  /* รอ 1 frame ให้ layout คำนวณใหม่ก่อน capture */
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+
+      var target = page || document.body;
+      var W = target.scrollWidth;
+      var H = target.scrollHeight;
+
+      html2canvas(target, {
+        scale          : 2,
+        useCORS        : true,
+        allowTaint     : true,
+        backgroundColor: '#f7f5f1',
+        scrollX        : 0,
+        scrollY        : 0,
+        width          : W,
+        height         : H,
+        windowWidth    : W,
+        windowHeight   : H,
+        x              : 0,
+        y              : 0
+      }).then(function(canvas) {
+
+        /* --- คืนค่า style ทุกอย่าง --- */
+        if (toolbar)   toolbar.style.display   = saved.tbDisplay;
+        if (lvlGroups) {
+          lvlGroups.style.overflow = saved.lgOverflow;
+          lvlGroups.style.width    = saved.lgWidth;
+          lvlGroups.style.height   = saved.lgHeight;
+        }
+        if (page) page.style.overflow = saved.pgOverflow;
+
+        /* --- สร้าง PDF --- */
+        var imgData = canvas.toDataURL('image/jpeg', 0.92);
+        var cw = canvas.width, ch = canvas.height;
+        var orient = cw > ch ? 'l' : 'p';
+        var jsPDFCls = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : window.jsPDF;
+        var pdf = new jsPDFCls({ orientation: orient, unit: 'px', format: [cw, ch] });
+        pdf.addImage(imgData, 'JPEG', 0, 0, cw, ch);
+
+        var d = new Date();
+        pdf.save('org-chart-' + d.getDate() + '-' + (d.getMonth()+1) + '-' + d.getFullYear() + '.pdf');
+
+        btn.innerHTML = origBtn;
+        btn.disabled  = false;
+        if (typeof showToast === 'function') showToast('✅ Export PDF สำเร็จ!', 'ok');
+
+      }).catch(function(err) {
+        if (toolbar)   toolbar.style.display   = saved.tbDisplay;
+        if (lvlGroups) {
+          lvlGroups.style.overflow = saved.lgOverflow;
+          lvlGroups.style.width    = saved.lgWidth;
+          lvlGroups.style.height   = saved.lgHeight;
+        }
+        if (page) page.style.overflow = saved.pgOverflow;
+        btn.innerHTML = origBtn;
+        btn.disabled  = false;
+        alert('Export ไม่สำเร็จ: ' + err.message);
+      });
+
+    }); /* end rAF inner */
+  }); /* end rAF outer */
+}
 </script>
 </body>
 </html>
