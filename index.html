@@ -917,7 +917,7 @@ body{font-family:'Noto Sans Thai','IBM Plex Sans Thai',sans-serif;background:var
     <div class="ban-co">บริษัท ไลค์ช็อป มอลล์ จำกัด &nbsp;•&nbsp; มาซารุ มาร์เก็ตติ้ง จำกัด &nbsp;•&nbsp; ไดกิเทรดดิ้ง จำกัด</div>
     <div class="ban-title">ผังองค์กร</div>
     <div class="ban-line"></div>
-    <div class="ban-meta">ณ วันที่ 03 เมษายน 2569 &nbsp;|&nbsp; พนักงานรวมทั้งสิ้น <span id="bannerTotal">0</span> คน</div>
+    <div class="ban-meta">ณ วันที่ <span id="bannerDate"></span> &nbsp;|&nbsp; พนักงานรวมทั้งสิ้น <span id="bannerTotal">0</span> คน</div>
   </div>
 </div>
 
@@ -1515,17 +1515,6 @@ function loadFromDB() {
     groups = JSON.parse(JSON.stringify(SEED_GROUPS));
     secretaries = JSON.parse(JSON.stringify(SEED_SECRETARIES));
     dbReady = false;
-    /* restore group order จาก localStorage (offline) */
-    try {
-      var _saved = localStorage.getItem('grpOrder');
-      if (_saved) {
-        var _order = JSON.parse(_saved);
-        var _map = {}; groups.forEach(function(g){ _map[g.id]=g; });
-        var _sorted = _order.map(function(id){ return _map[id]; }).filter(Boolean);
-        groups.forEach(function(g){ if(_order.indexOf(g.id)<0) _sorted.push(g); });
-        groups = _sorted;
-      }
-    } catch(ex) {}
     render();
   });
 }
@@ -1650,6 +1639,18 @@ function render() {
       return a + g.depts.reduce(function(b,d){return b+d.members.length;},0);
     },0);
     bannerTotal.textContent = grandCount;
+  }
+
+  /* อัปเดตวันที่ real-time */
+  var bannerDate = document.getElementById('bannerDate');
+  if (bannerDate) {
+    var _now = new Date();
+    var _thMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                     'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    var _d  = _now.getDate();
+    var _m  = _thMonths[_now.getMonth()];
+    var _y  = _now.getFullYear() + 543;
+    bannerDate.textContent = ('0'+_d).slice(-2) + ' ' + _m + ' ' + _y;
   }
 }
 
@@ -2423,23 +2424,6 @@ function initGroupDragDrop(col) {
     if(insertIdx > fromIdx) insertIdx--;
     groups.splice(insertIdx, 0, moved);
     render();
-
-    /* ── save order ── */
-    var orderIds = groups.map(function(g){ return g.id; });
-    if (dbReady) {
-      /* บันทึก sort_order ลง Nhost DB */
-      var mutations = groups.map(function(g, i) {
-        return gql(
-          'mutation($id:String!,$so:Int!){update_groups_by_pk(pk_columns:{id:$id},_set:{sort_order:$so}){id}}',
-          { id: g.id, so: i }
-        );
-      });
-      Promise.all(mutations)
-        .then(function(){ showToast('✅ บันทึกลำดับแล้ว', 'ok'); })
-        .catch(function(err){ showToast('❌ บันทึกลำดับไม่สำเร็จ: ' + err.message, 'err'); });
-    }
-    /* บันทึกลง localStorage เสมอ (ใช้เป็น fallback และ offline) */
-    try { localStorage.setItem('grpOrder', JSON.stringify(orderIds)); } catch(ex) {}
   });
 }
 var gDragId = null;
