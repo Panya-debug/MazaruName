@@ -2424,6 +2424,19 @@ function initGroupDragDrop(col) {
     if(insertIdx > fromIdx) insertIdx--;
     groups.splice(insertIdx, 0, moved);
     render();
+
+    if(dbReady) {
+      var mutations = [];
+      groups.forEach(function(g, i) {
+        mutations.push(gql(
+          'mutation SortGroup($id: String!, $sort: Int!) { update_groups_by_pk(pk_columns:{id:$id}, _set:{sort_order:$sort}) { id } }',
+          { id: g.id, sort: i }
+        ));
+      });
+      Promise.all(mutations)
+        .then(function(){ showToast('✅ บันทึกลำดับหัวข้อแล้ว','ok'); })
+        .catch(function(err){ showToast('❌ บันทึกลำดับไม่สำเร็จ: '+err.message,'err'); });
+    }
   });
 }
 var gDragId = null;
