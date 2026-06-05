@@ -1318,23 +1318,24 @@ var GQL_URL = 'https://' + NHOST_SUBDOMAIN + '.hasura.' + NHOST_REGION + '.nhost
 
 function gql(query, variables) {
   var controller = new AbortController();
-  var tid = setTimeout(function(){ controller.abort(); }, 10000);
+  var signal = controller.signal;
+  var tid = setTimeout(function(){ controller.abort(); controller = null; }, 10000);
   return fetch(GQL_URL, {
     method: 'POST',
-    signal: controller.signal,
+    signal: signal,
     headers: {
       'Content-Type': 'application/json',
       'x-hasura-admin-secret': NHOST_SECRET
     },
     body: JSON.stringify({ query: query, variables: variables || {} })
   })
-  .then(function(r){ clearTimeout(tid); return r.json(); })
+  .then(function(r){ clearTimeout(tid); controller = null; signal = null; return r.json(); })
   .then(function(res){
     if (res.errors) throw new Error(res.errors[0].message);
     return res.data;
   })
   .catch(function(err){
-    clearTimeout(tid);
+    clearTimeout(tid); controller = null; signal = null;
     if (err.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ (10s)');
     throw err;
   });
@@ -2335,6 +2336,7 @@ document.addEventListener('pointerup', function(e) {
     pmCleanup();
     return;
   }
+  if(!pmGhost) { pmCleanup(); return; }
 
   pmGhost.style.display='none';
   var el = document.elementFromPoint(e.clientX, e.clientY);
@@ -2349,8 +2351,9 @@ document.addEventListener('pointerup', function(e) {
       var member=fromDept.members.find(function(m){return m.id===savedMid;});
       if(member) {
         var rows=Array.from(zone.querySelectorAll('.mr')), toIndex;
-        if(savedAbove){var idx=rows.findIndex(function(r){return r===savedAbove;});toIndex=idx>=0?idx:rows.length;}
-        else if(savedBelow){var idx=rows.findIndex(function(r){return r===savedBelow;});toIndex=idx>=0?idx+1:rows.length;}
+        var idx;
+        if(savedAbove){idx=rows.findIndex(function(r){return r===savedAbove;});toIndex=idx>=0?idx:rows.length;}
+        else if(savedBelow){idx=rows.findIndex(function(r){return r===savedBelow;});toIndex=idx>=0?idx+1:rows.length;}
         else toIndex=rows.length;
         var samedept=toDid===savedFromDid;
         var oldFrom=fromDept.members.slice(), oldTo=toDept.members.slice();
@@ -2422,6 +2425,7 @@ function initGroupDragDrop(col) {
     var insertIdx = e.clientX < mid ? toIdx : toIdx + 1;
     var moved = groups.splice(fromIdx, 1)[0];
     if(insertIdx > fromIdx) insertIdx--;
+    if(insertIdx < 0) insertIdx = 0;
     groups.splice(insertIdx, 0, moved);
     render();
 
@@ -2518,6 +2522,7 @@ document.addEventListener('pointermove', function(e) {
 
 document.addEventListener('pointerup', function(e) {
   if(!pdDid) return;
+  if(!pdGhost) { pdCleanup(); return; }
 
   // restore opacity
   var srcCard = document.querySelector('.dc[data-did="' + pdDid + '"]');
@@ -2738,7 +2743,7 @@ function amSaveAll() {
   if (!d) return;
 
   var newMembers = amQueue.map(function(m, i) {
-    return { id: amDeptId + '_m' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 9), n: m.n, k: m.k };
+    return { id: amDeptId + '_m' + (Date.now() + i) + '_' + Math.random().toString(36).slice(2, 9), n: m.n, k: m.k };
   });
 
   if (dbReady) {
@@ -3062,22 +3067,34 @@ function exportPDF() {
   btn.innerHTML = '⏳ กำลัง Export...';
   btn.disabled = true;
 
-  /* --- เก็บ style เดิมของ elements ที่ต้องแก้ชั่วคราว --- */
   var toolbar    = document.querySelector('.toolbar');
   var page       = document.querySelector('.page');
   var lvlGroups  = document.getElementById('levelGroups');
   var groupsGrid = document.getElementById('groupsGrid');
 
+  /* บันทึก style เดิม */
   var saved = {
-    tbDisplay  : toolbar    ? toolbar.style.display       : '',
-    lgOverflow : lvlGroups  ? lvlGroups.style.overflow     : '',
-    lgWidth    : lvlGroups  ? lvlGroups.style.width        : '',
-    lgHeight   : lvlGroups  ? lvlGroups.style.height       : '',
-    pgOverflow : page       ? page.style.overflow          : '',
+    tbDisplay  : toolbar   ? toolbar.style.display    : '',
+    lgOverflow : lvlGroups ? lvlGroups.style.overflow  : '',
+    lgWidth    : lvlGroups ? lvlGroups.style.width     : '',
+    lgHeight   : lvlGroups ? lvlGroups.style.height    : '',
+    pgOverflow : page      ? page.style.overflow       : '',
   };
 
-  /* --- ขยายทุก container ให้เต็มเนื้อหา ไม่ scroll --- */
-  if (toolbar)   toolbar.style.display   = 'none';
+  function restoreAll() {
+    if (toolbar)   toolbar.style.display   = saved.tbDisplay;
+    if (lvlGroups) {
+      lvlGroups.style.overflow = saved.lgOverflow;
+      lvlGroups.style.width    = saved.lgWidth;
+      lvlGroups.style.height   = saved.lgHeight;
+    }
+    if (page) page.style.overflow = saved.pgOverflow;
+    var ps = document.getElementById('export-patch-style');
+    if (ps) ps.textContent = '';
+  }
+
+  /* ขยาย container + ซ่อน toolbar */
+  if (toolbar) toolbar.style.display = 'none';
   if (lvlGroups) {
     lvlGroups.style.overflow = 'visible';
     lvlGroups.style.width    = groupsGrid ? (groupsGrid.scrollWidth + 40) + 'px' : 'max-content';
@@ -3085,68 +3102,82 @@ function exportPDF() {
   }
   if (page) page.style.overflow = 'visible';
 
-  /* รอ 1 frame ให้ layout คำนวณใหม่ก่อน capture */
+  /* patch: ซ่อน pseudo-element ที่ใช้ SVG data-URI ทั้งหมด เพราะ html2canvas จะ createPattern canvas 0x0 แล้ว throw */
+  var patchStyle = document.getElementById('export-patch-style');
+  if (!patchStyle) {
+    patchStyle = document.createElement('style');
+    patchStyle.id = 'export-patch-style';
+    document.head.appendChild(patchStyle);
+  }
+  patchStyle.textContent = [
+    /* ปิดเฉพาะ banner::after ที่ใช้ SVG data-URI ซึ่งทำให้ html2canvas createPattern canvas 0x0 */
+    '.banner::after { background-image: none !important; }',
+    '.banner::before { background: #0d1f35 !important; }',
+    'body { background-image: none !important; }',
+    'html { background-image: none !important; }'
+  ].join('\n');
+
+  /* รอ 3 frames ให้ layout settle */
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
 
-      var target = page || document.body;
-      var W = target.scrollWidth;
-      var H = target.scrollHeight;
+        var target = page || document.body;
+        var W = Math.max(1, target.scrollWidth || document.documentElement.scrollWidth || window.innerWidth);
+        var H = Math.max(1, target.scrollHeight || document.documentElement.scrollHeight || window.innerHeight);
 
-      html2canvas(target, {
-        scale          : 2,
-        useCORS        : true,
-        allowTaint     : true,
-        backgroundColor: '#f7f5f1',
-        scrollX        : 0,
-        scrollY        : 0,
-        width          : W,
-        height         : H,
-        windowWidth    : W,
-        windowHeight   : H,
-        x              : 0,
-        y              : 0
-      }).then(function(canvas) {
+        html2canvas(target, {
+          scale          : 1.5,
+          useCORS        : true,
+          allowTaint     : false,
+          backgroundColor: '#f7f5f1',
+          scrollX        : 0,
+          scrollY        : 0,
+          width          : W,
+          height         : H,
+          windowWidth    : W,
+          windowHeight   : H,
+          x              : 0,
+          y              : 0,
+          logging        : false,
+          imageTimeout   : 0,
+          onclone        : function(clonedDoc) {
+            /* ปิดเฉพาะ banner SVG pattern — ห้ามใช้ * เพราะจะทำลาย background ของ .dc-head, .g-red ฯลฯ */
+            var st = clonedDoc.createElement('style');
+            st.textContent = '.banner::after { background-image: none !important; } .banner::before { background: #0d1f35 !important; } body,html { background-image: none !important; }';
+            clonedDoc.head.appendChild(st);
+          }
+        }).then(function(canvas) {
+          restoreAll();
 
-        /* --- คืนค่า style ทุกอย่าง --- */
-        if (toolbar)   toolbar.style.display   = saved.tbDisplay;
-        if (lvlGroups) {
-          lvlGroups.style.overflow = saved.lgOverflow;
-          lvlGroups.style.width    = saved.lgWidth;
-          lvlGroups.style.height   = saved.lgHeight;
-        }
-        if (page) page.style.overflow = saved.pgOverflow;
+          var cw = canvas.width, ch = canvas.height;
+          if (!cw || !ch) {
+            restoreAll();
+            btn.innerHTML = origBtn; btn.disabled = false;
+            alert('Export ไม่สำเร็จ: canvas มีขนาด 0 กรุณาลองใหม่');
+            return;
+          }
 
-        /* --- สร้าง PDF --- */
-        var imgData = canvas.toDataURL('image/jpeg', 0.92);
-        var cw = canvas.width, ch = canvas.height;
-        var orient = cw > ch ? 'l' : 'p';
-        var jsPDFCls = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : window.jsPDF;
-        var pdf = new jsPDFCls({ orientation: orient, unit: 'px', format: [cw, ch] });
-        pdf.addImage(imgData, 'JPEG', 0, 0, cw, ch);
+          var imgData = canvas.toDataURL('image/jpeg', 0.90);
+          var orient  = cw > ch ? 'l' : 'p';
+          var jsPDFCls = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : window.jsPDF;
+          var pdf = new jsPDFCls({ orientation: orient, unit: 'px', format: [cw, ch] });
+          pdf.addImage(imgData, 'JPEG', 0, 0, cw, ch);
+          var d = new Date();
+          pdf.save('org-chart-' + d.getDate() + '-' + (d.getMonth()+1) + '-' + d.getFullYear() + '.pdf');
 
-        var d = new Date();
-        pdf.save('org-chart-' + d.getDate() + '-' + (d.getMonth()+1) + '-' + d.getFullYear() + '.pdf');
+          btn.innerHTML = origBtn; btn.disabled = false;
+          if (typeof showToast === 'function') showToast('✅ Export PDF สำเร็จ!', 'ok');
 
-        btn.innerHTML = origBtn;
-        btn.disabled  = false;
-        if (typeof showToast === 'function') showToast('✅ Export PDF สำเร็จ!', 'ok');
+        }).catch(function(err) {
+          restoreAll();
+          btn.innerHTML = origBtn; btn.disabled = false;
+          alert('Export ไม่สำเร็จ: ' + err.message);
+        });
 
-      }).catch(function(err) {
-        if (toolbar)   toolbar.style.display   = saved.tbDisplay;
-        if (lvlGroups) {
-          lvlGroups.style.overflow = saved.lgOverflow;
-          lvlGroups.style.width    = saved.lgWidth;
-          lvlGroups.style.height   = saved.lgHeight;
-        }
-        if (page) page.style.overflow = saved.pgOverflow;
-        btn.innerHTML = origBtn;
-        btn.disabled  = false;
-        alert('Export ไม่สำเร็จ: ' + err.message);
-      });
-
-    }); /* end rAF inner */
-  }); /* end rAF outer */
+      }); /* rAF 3 */
+    }); /* rAF 2 */
+  }); /* rAF 1 */
 }
 </script>
 </body>
